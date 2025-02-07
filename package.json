@@ -22,9 +22,8 @@
 		"@unocss/preset-rem-to-px": "^65.4.0",
 		"@unocss/reset": "^65.4.0",
 		"clsx": "^2.1.1",
-		"crypto": "^1.0.1",
+		"crypto-browserify": "^3.12.1",
 		"discord-api-types": "0.37.115",
-		"dotenv": "^16.4.7",
 		"js-cookie": "^3.0.5",
 		"tailwind-merge": "^2.6.0",
 		"zod": "^3.24.1"
