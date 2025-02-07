@@ -1,8 +1,12 @@
 name = "silycat"
 compatibility_date = "2025-2-4"
 
+[build]
+command = "pnpm run build"
+pages_build_output_dir = ".svelte-kit/cloudflare"
+
 [vars]
 NODE_ENV = "production"
 
 [functions]
-compatibility_flags = ["nodejs_compat"] # Enables Node.js compatibility, including node:crypto
+compatibility_flags = ["nodejs_compat"]
