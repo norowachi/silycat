@@ -32,7 +32,7 @@ export default defineConfig({
 		},
 	},
 	rules: [
-		[/^(border|b)-(l|r|t|b|x|y)-(\d+)/, ([, _, side, n]) => setBorderFromLetter(side, Number(n))],
+		[/^(border|b)-(l|r|t|b|x|y)-(\d+)$/, ([, _, side, n]) => setBorderFromLetter(side, Number(n))],
 	],
 	content: {
 		pipeline: {
