@@ -2,6 +2,4 @@ name = "silycat"
 pages_build_output_dir = "./.svelte-kit"
 compatibility_date = "2025-02-06"
 compatibility_flags = ["nodejs_compat"]
-
-[env]
-NODE_VERSION = "22.3.0"
+vars = { NODE_VERSION = "22.3.0" }
