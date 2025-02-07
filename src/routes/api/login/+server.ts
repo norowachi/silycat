@@ -1,12 +1,42 @@
-import { DISCORD_CLIENT_ID } from '$env/static/private';
-import { type RequestHandler, redirect } from '@sveltejs/kit';
+import { type RequestHandler, json, redirect } from '@sveltejs/kit';
 
-export const GET: RequestHandler = async ({ request }) => {
-	const url = new URL(request.url);
-	// state
-	const callback = encodeURIComponent(url.searchParams.get('state') || '/');
-	const redirect_uri = encodeURIComponent(`${url.origin}/api/callback`);
-	const scopes = ['identify'].join('%20');
-	const authLink = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${redirect_uri}&response_type=code&scope=${scopes}&state=${callback}&prompt=none`;
-	return redirect(302, authLink);
+export const POST: RequestHandler = async ({ request, cookies }) => {
+	const data = await request.formData();
+	const login = data.get('login')?.toString();
+	const password = data.get('password')?.toString();
+	let username = null;
+	let handle = null;
+
+	if (login?.toString().includes('@')) {
+		handle = login;
+	} else {
+		username = login;
+	}
+
+	console.log(request.headers, username, handle, password);
+
+	const auth = await fetch('https://api.noro.cc/auth/login', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify({ username, handle, password }),
+	});
+	const { token } = await auth.json();
+	if (!token) return redirect(302, '/');
+
+	cookies.set('token', token, {
+		// expires: new Date(Date.now() +  * 1000),
+		httpOnly: true,
+		sameSite: 'strict',
+		secure: true,
+		path: '/',
+	});
+
+	return json(
+		{ message: 'Logged in' },
+		{
+			status: 200,
+		},
+	);
 };

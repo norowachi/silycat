@@ -1,16 +1,15 @@
-import { defineConfig } from 'vite';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
 import { sveltekit } from '@sveltejs/kit/vite';
-import extractorSvelte from '@unocss/extractor-svelte';
+import { defineConfig } from 'vite';
 import UnoCSS from '@unocss/svelte-scoped/vite';
+import { transformerDirectives } from 'unocss';
 
 export default defineConfig({
 	plugins: [
 		UnoCSS({
+			cssFileTransformers: [transformerDirectives()],
 			classPrefix: '',
+			injectReset: '',
 		}),
 		sveltekit(),
-		extractorSvelte(),
 	],
 });
