@@ -1,0 +1,8 @@
+name = "silycat"
+compatibility_date = "2025-2-4"
+
+[vars]
+NODE_ENV = "production"
+
+[functions]
+compatibility_flags = ["nodejs_compat"] # Enables Node.js compatibility, including node:crypto
