@@ -1,5 +1,5 @@
 import { ENCRYPTION_KEY } from '$env/static/private';
-import { createCipheriv, createDecipheriv, randomBytes } from 'node:crypto';
+import { createCipheriv, createDecipheriv, randomBytes } from 'crypto';
 
 // encrypt a token
 export function encryptToken(token: string): string {
