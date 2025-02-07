@@ -1,5 +1,4 @@
 import { DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET } from '$env/static/private';
-import { encryptToken } from '$lib';
 import { type RequestHandler, json, redirect } from '@sveltejs/kit';
 
 export const GET: RequestHandler = async ({ request, cookies }) => {
@@ -35,7 +34,7 @@ export const GET: RequestHandler = async ({ request, cookies }) => {
 		secure: true,
 		path: '/',
 	};
-	cookies.set('token', encryptToken(data.access_token), cookieOptions);
+	cookies.set('token', data.access_token, cookieOptions);
 
 	const user = await fetch('https://discord.com/api/v10/users/@me', {
 		headers: {
