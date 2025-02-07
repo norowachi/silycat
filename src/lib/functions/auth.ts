@@ -1,4 +1,5 @@
 import { ENCRYPTION_KEY } from '$env/static/private';
+// @ts-ignore
 import { createCipheriv, createDecipheriv, randomBytes } from 'crypto-browserify';
 
 // encrypt a token
