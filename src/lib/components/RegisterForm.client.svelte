@@ -44,7 +44,8 @@
 			autocomplete="username"
 			minlength="3"
 			maxlength="32"
-			oninput={(e) => (e.currentTarget.value = e.currentTarget.value.replace(/[^a-zA-Z0-9]/g, ''))}
+			oninput={(e) =>
+				(e.currentTarget.value = e.currentTarget.value.toLowerCase().replace(/[^a-z0-9]/gi, ''))}
 			required
 		/>
 	</div>
