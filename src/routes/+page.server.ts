@@ -1,11 +1,10 @@
+import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ cookies }) => {
 	const token = cookies.get('token');
 
-	console.log(token);
+	if (token) redirect(302, '/app');
 
-	return {
-		LoggedIn: !!token,
-	};
+	return;
 };

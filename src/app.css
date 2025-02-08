@@ -1,0 +1,30 @@
+@import 'tailwindcss';
+
+body {
+	font-family: 'Comic Sans MS', 'Comic Sans', cursive !important;
+	background: #f472b6;
+	color: white;
+}
+
+a {
+	text-decoration: underline;
+	color: rgb(47, 47, 255);
+	transition: color 0.3s ease;
+	&:hover {
+		color: rgb(25, 25, 225);
+	}
+}
+
+#cookie-svg {
+	position: fixed;
+	bottom: 8px;
+	right: 8px;
+	background-image: linear-gradient(to bottom right, transparent 30%, purple, transparent 70%);
+	padding: 8px;
+	border-radius: 50%;
+	z-index: 9999999;
+	transition: all 500ms ease;
+	&:hover {
+		transform: rotate(360deg);
+	}
+}

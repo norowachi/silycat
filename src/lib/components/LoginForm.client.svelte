@@ -1,7 +1,5 @@
 <script lang="ts">
-	const { loggedIn } = $props();
-
-	async function submit(e: SubmitEvent) {
+	async function onsubmit(e: SubmitEvent) {
 		e.preventDefault();
 
 		const formData = new FormData(e.currentTarget as HTMLFormElement);
@@ -12,47 +10,67 @@
 		});
 
 		const data = await response.json();
+
+		if (data.redirect) location.href = data.redirect;
+
 		return alert(data.message);
 	}
 </script>
 
-{#if !loggedIn}
-	<form onsubmit={submit} class="w-full flex flex-col justify-center items-center">
-		<ol class="flex flex-col">
-			<il class="pl-2 rounded-sm b-l-4 !border-purple-600 text-lg mb-2">Login:</il>
-			<il>
-				<!-- svelte-ignore a11y_autofocus -->
-				<input
-					type="text"
-					id="login"
-					name="login"
-					autocapitalize="none"
-					autocomplete="username"
-					autofocus
-					class="w-64 rounded-xl bg-gray-500 text-white p-2 border-2 border-red-6 focus:outline-none focus:border-purple-600"
-					required
-				/>
-			</il>
-			<il class="pl-2 rounded-sm b-l-4 !border-purple-600 text-lg my-2">Password:</il>
-			<il>
-				<input
-					type="password"
-					id="password"
-					name="password"
-					autocomplete="current-password"
-					class="w-64 rounded-xl bg-gray-500 text-white p-2 border-2 border-red-6 focus:outline-none focus:border-purple-600"
-					required
-				/>
-			</il>
-		</ol>
-		<div class="mb-4">
-			<input type="checkbox" id="terms" class="bottom-0 h-5 left-0 right-0 top-0 w-5" required />
-			<label for="terms" class="cursor-pointer">
-				I agree to the <a href="/terms">terms and conditions</a>.
-			</label>
-		</div>
-		<button class="w-28 p-4 bg-blue-500 m-auto rounded-lg mb-10">Log In</button>
-	</form>
-{:else}
-	<p class="text-center">You are already logged in.</p>
-{/if}
+<form {onsubmit} class="w-full max-w-md mx-auto flex flex-col justify-center items-center">
+	<ol class="flex flex-col justify-center">
+		<il class="ml-[-12px] pl-2 rounded-sm border-l-4 border-purple-600 text-lg mb-2">Login</il>
+		<il>
+			<input
+				type="text"
+				id="login"
+				name="login"
+				autocapitalize="none"
+				autocomplete="username"
+				class="p-2"
+				required
+			/>
+		</il>
+		<il class="ml-[-12px] pl-2 rounded-sm border-l-4 border-purple-600 text-lg my-2">Password</il>
+		<il>
+			<input
+				type="password"
+				id="password"
+				name="password"
+				autocomplete="current-password"
+				class="p-2"
+				required
+			/>
+		</il>
+	</ol>
+	<div class="my-4 text-center">
+		<input type="checkbox" id="terms" class="	bottom-0 h-5 left-0 right-0 top-0 !w-5" required />
+		<label for="terms" class="cursor-pointer">
+			I agree to the <a href="/terms">terms and conditions</a>.
+		</label>
+	</div>
+	<button class="w-28 p-4 m-auto rounded-lg">Log In</button>
+	<slot />
+</form>
+
+<style lang="postcss">
+	@reference "tailwindcss";
+
+	input {
+		@apply w-full bg-gray-500;
+		@apply rounded-xl border-2 border-t-red-800 border-l-red-800 border-red-600;
+		&:focus {
+			@apply outline-none;
+			@apply border-t-purple-600 border-l-purple-600 border-purple-800;
+		}
+	}
+
+	button {
+		@apply cursor-pointer bg-blue-500;
+		@apply border-2 border-t-white border-l-white border-blue-700;
+		&:focus {
+			@apply outline-none;
+			@apply border-b-white border-r-white border-blue-700;
+		}
+	}
+</style>
