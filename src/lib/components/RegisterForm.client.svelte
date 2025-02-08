@@ -45,7 +45,7 @@
 			minlength="3"
 			maxlength="32"
 			oninput={(e) =>
-				(e.currentTarget.value = e.currentTarget.value.toLowerCase().replace(/[^a-z0-9]/gi, ''))}
+				(e.currentTarget.value = e.currentTarget.value.toLowerCase().replace(/[^a-z0-9-_.]/gi, ''))}
 			required
 		/>
 	</div>
