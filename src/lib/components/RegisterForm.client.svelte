@@ -48,12 +48,12 @@
 			required
 		/>
 	</div>
-	<div class="mb-4">
-		<label class="block text-gray-700 text-sm font-bold mb-2" for="email">Handle</label>
+	<!-- <div class="mb-4">
+		<label class="block text-sm font-bold mb-2" for="email">Handle</label>
 		<input type="email" id="email" name="email" placeholder="username@delta.noro.cc" />
-	</div>
+	</div> -->
 	<div class="mb-4">
-		<label class="block text-gray-700 text-sm font-bold mb-2" for="password">
+		<label class="block text-sm font-bold mb-2" for="password">
 			Password
 			<span class="text-red-600">*</span>
 		</label>
@@ -62,6 +62,7 @@
 			id="password"
 			name="password"
 			placeholder="********"
+			minlength="8"
 			oninput={confirmPassword}
 			required
 		/>
@@ -79,6 +80,12 @@
 			oninput={confirmPassword}
 			required
 		/>
+	</div>
+	<div class="my-4 text-center">
+		<input type="checkbox" id="terms" class="bottom-0 h-5 left-0 right-0 top-0 !w-5" required />
+		<label for="terms" class="cursor-pointer">
+			I agree to the <a href="/terms">terms and conditions</a>.
+		</label>
 	</div>
 	<button
 		class="text-sm font-bold py-2 px-4 rounded-md transition duration-300 float-right"

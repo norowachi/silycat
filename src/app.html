@@ -32,7 +32,7 @@
 		</noscript>
 		<!-- End Cookie Consent by FreePrivacyPolicy.com https://www.FreePrivacyPolicy.com -->
 
-		%sveltekit.head%
+		%unocss-svelte-scoped.global% %sveltekit.head%
 	</head>
 
 	<body data-sveltekit-preload-data>
@@ -40,7 +40,7 @@
 			<h1>Please enable JavaScript to view this Website</h1>
 		</noscript>
 
-		%sveltekit.body%
+		<div style="display: contents">%sveltekit.body%</div>
 
 		<a id="open_preferences_center" style="cursor: pointer">
 			<img src="/images/cookie.svg" height="32" width="32" id="cookie-svg" />
