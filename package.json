@@ -14,7 +14,8 @@
 		"lint": "prettier --check . && eslint ."
 	},
 	"dependencies": {
-		"discord-api-types": "0.37.115"
+		"discord-api-types": "0.37.115",
+		"socket.io-client": "^4.8.1"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-cloudflare": "^5.0.2",
