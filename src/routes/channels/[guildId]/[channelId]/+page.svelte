@@ -64,7 +64,7 @@
 			await new Promise((r) => setTimeout(r, 1));
 			messageContainer.scrollTo({
 				top: messageContainer.scrollHeight,
-				behavior: 'smooth',
+				behavior: 'instant',
 			});
 		}
 	});
