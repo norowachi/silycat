@@ -4,7 +4,7 @@
 	async function onclick() {
 		const chat = document.getElementById('chat') as HTMLTextAreaElement;
 		if (!chat) return;
-		const message = chat.value;
+		const message = chat.value.replace(/^(\n|\s)+/, '');
 		chat.value = '';
 
 		await fetch(`/api/message/${guildId}/${channelId}`, {
@@ -52,6 +52,8 @@
 		placeholder="Your Message..."
 		spellcheck="false"
 		style="height: auto;"
+		minlength="1"
+		maxlength="2000"
 		oninput={(e) => {
 			e.currentTarget.style.height = 'auto';
 			e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px';

@@ -19,7 +19,7 @@
 		if (messageContainer)
 			messageContainer.scrollTo({
 				top: messageContainer.scrollHeight,
-				behavior: 'smooth',
+				behavior: 'instant',
 			});
 
 		socket.set(
@@ -50,23 +50,7 @@
 				);
 		});
 
-		document.getElementById('chat')!.onkeydown = ChatLength;
-		document.getElementById('chat')!.onpaste = ChatLength;
-		document.getElementById('chat')!.oncut = ChatLength;
-		document.getElementById('chat')!.oninput = ChatLength;
-
-		function ChatLength(e: Event) {
-			const target = e.currentTarget as HTMLTextAreaElement;
-			const app = document.getElementById('app')!;
-
-			app.style.height = 'calc(100vh - 20px - ' + target.clientHeight + 'px)';
-
-			if (messageContainer)
-				messageContainer.scrollTo({
-					top: messageContainer.scrollHeight,
-					behavior: 'instant',
-				});
-		}
+		new ResizeObserver(ChatLength).observe(document.getElementById('chat')!);
 	});
 
 	onDestroy(() => {
@@ -75,27 +59,46 @@
 
 	// Auto-scroll
 	messages.subscribe(async () => {
+		console.log('scrolling');
 		if (messageContainer) {
 			await new Promise((r) => setTimeout(r, 1));
+			messageContainer.scrollTo({
+				top: messageContainer.scrollHeight,
+				behavior: 'smooth',
+			});
+		}
+	});
+
+	function ChatLength(entries: ResizeObserverEntry[]) {
+		console.log((entries[0].target as HTMLTextAreaElement).style);
+		const target = entries[0].target as HTMLTextAreaElement;
+		const app = document.getElementById('app')!;
+
+		app.style.height = 'calc(100vh - 20px - ' + target.clientHeight + 'px)';
+
+		if (messageContainer) {
 			messageContainer.scrollTo({
 				top: messageContainer.scrollHeight,
 				behavior: 'instant',
 			});
 		}
-	});
+	}
 </script>
 
-<main id="app" class="flex flex-col w-full overflow-y-auto snap-y snap-mandatory" style="height: calc(100vh - 60px)">
-	<section bind:this={messageContainer} class="snap-start pb-1.5">
-		<ul>
-			{#each $messages as { id, content, embeds, author, createdAt } (id)}
+<main id="app" class="flex flex-col w-full overflow-hidden" style="height: calc(100vh - 60px)">
+	<section bind:this={messageContainer} class="overflow-y-auto snap-y snap-mandatory pb-1.5">
+		<ul class="snap-end">
+			{#each $messages as { id, content, embeds, author, createdAt }, i (id)}
 				<il>
-					<Message {id} {content} {embeds} {author} {createdAt} />
+					<Message {id} {content} {embeds} {author} {createdAt} lastMessage={$messages[i - 1]} />
 				</il>
 			{/each}
+			<il>
+				<br />
+			</il>
 		</ul>
 	</section>
-	<div class="w-full sticky bottom-1 md:bottom-2.5">
-		<MessageBox guildId={data.guild.id} channelId={data.channel.id} />
-	</div>
 </main>
+<div class="w-full sticky bottom-1">
+	<MessageBox guildId={data.guild.id} channelId={data.channel.id} />
+</div>
