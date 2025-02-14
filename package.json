@@ -18,7 +18,7 @@
 		"socket.io-client": "^4.8.1"
 	},
 	"devDependencies": {
-		"@sveltejs/adapter-cloudflare": "^5.0.2",
+		"@sveltejs/adapter-auto": "^4.0.0",
 		"@sveltejs/kit": "^2.15.2",
 		"@sveltejs/vite-plugin-svelte": "^5.0.3",
 		"@unocss/preset-rem-to-px": "^65.4.3",

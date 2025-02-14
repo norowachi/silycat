@@ -23,10 +23,9 @@
 
 		const data = await response.json();
 
-		alert(data.message);
-
-		if (data.redirect) throw redirect(302, data.redirect);
-		return;
+		if (data.redirect) location.href = data.redirect;
+		
+		return alert(data.message);
 	}
 </script>
 

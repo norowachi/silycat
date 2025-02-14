@@ -19,10 +19,10 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 			'Content-Type': 'application/json',
 		},
 		body: JSON.stringify({ username, handle, password }),
-	});
+	}).catch(() => {});
 
-	const data = await auth.json();
-	if (!data.token) return json({ message: data.message }, { status: auth.status });
+	const data = await auth?.json().catch(() => {});
+	if (!data || !data.token) return json({ message: data.message }, { status: auth?.status || 500 });
 
 	cookies.set('token', data.token, {
 		// expires: new Date(Date.now() +  * 1000),

@@ -12,5 +12,5 @@ export default defineConfig({
 			],
 		},
 	},
-	presets: [presetUno(), presetWind(), presetIcons({ scale: 1.2 }), PresetRemToPX()],
+	presets: [PresetRemToPX(), presetUno(), presetWind(), presetIcons({ scale: 1.2 })],
 });
