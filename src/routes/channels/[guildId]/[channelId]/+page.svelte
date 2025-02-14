@@ -86,8 +86,8 @@
 </script>
 
 <main id="app" class="flex flex-col w-full" style="height: calc(100vh - 60px)">
-	<section bind:this={messageContainer} class="w-full overflow-y-auto snap-y snap-mandatory pb-3">
-		<ul class="snap-start">
+	<section class="w-full overflow-y-auto snap-y snap-mandatory pb-3">
+		<ul bind:this={messageContainer} class="snap-start">
 			{#each $messages as { id, content, embeds, author, createdAt } (id)}
 				<il>
 					<Message {id} {content} {embeds} {author} {createdAt} />
