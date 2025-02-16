@@ -1,11 +1,19 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
+	import Tenor from './Tenor.client.svelte';
+
 	let { guildId, channelId } = $props();
 
-	async function onclick() {
+	async function OnClickSend(value?: string) {
 		const chat = document.getElementById('chat') as HTMLTextAreaElement;
 		if (!chat) return;
-		const message = chat.value.replace(/^(\n|\s)+/, '');
-		chat.value = '';
+		const message = value || chat.value.replace(/^(\n|\s)+/, '');
+		if (!message) return;
+
+		if (!value) {
+			chat.value = '';
+			chat.style.height = 'auto';
+		}
 
 		await fetch(`/api/message/${guildId}/${channelId}`, {
 			method: 'POST',
@@ -13,7 +21,39 @@
 				content: message,
 			}),
 		});
+
+		return;
 	}
+
+	async function OnClickGifs() {
+		const tab = document.getElementById('gifs-tab');
+		if (!tab) return;
+
+		if (tab.style.display === 'none') tab.style.display = 'block';
+		else tab.style.display = 'none';
+	}
+
+	onMount(() => {
+		document.onclick = (e) => {
+			const tab = document.getElementById('gifs-tab') as HTMLDivElement;
+			if (!tab) return;
+			const target = e.target as HTMLElement;
+			// TODO: rewrite this shit
+			if (target.ariaLabel === 'gif' && target.tagName === 'IMG') {
+				OnClickSend('<' + (target as HTMLImageElement).src.replace('C/', 'M/') + '>');
+				tab.style.display = 'none';
+				return;
+			}
+			// ignore the attach button, which is the caller
+			if ([target.ariaLabel, document.activeElement?.ariaLabel].includes('Attach')) return;
+			// if the click is within the tab
+			if (tab.contains(target)) return;
+
+			if (tab.style.display !== 'none') {
+				tab.style.display = 'none';
+			}
+		};
+	});
 </script>
 
 <div
@@ -23,6 +63,7 @@
 		type="button"
 		class="inline-flex justify-center p-2 text-gray-500 rounded-lg cursor-pointer hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-600"
 		aria-label="Attach"
+		onclick={OnClickGifs}
 	>
 		<svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"
 			><path
@@ -57,18 +98,25 @@
 		oninput={(e) => {
 			e.currentTarget.style.height = 'auto';
 			e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px';
+			return;
 		}}
 		onkeydown={(e) => {
-			if (!e.shiftKey && e.key === 'Enter') {
+			if (!e.repeat && !e.shiftKey && e.key === 'Enter') {
 				e.preventDefault();
-				e.currentTarget.rows = 1;
-				e.currentTarget.style.height = 'auto';
-				onclick();
+				OnClickSend();
 			}
+			return;
 		}}
 	></textarea>
+	<div
+		id="gifs-tab"
+		class="absolute h-lg bottom-[60px] overflow-y-auto snap-y snap-proximity"
+		style="display: none;"
+	>
+		<Tenor />
+	</div>
 	<button
-		{onclick}
+		onclick={() => OnClickSend()}
 		class="inline-flex justify-center p-2 text-blue-600 rounded-full cursor-pointer hover:bg-blue-100 dark:text-blue-500 dark:hover:bg-gray-600"
 		aria-label="Send"
 	>

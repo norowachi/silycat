@@ -1,7 +1,8 @@
-import { type RequestHandler, json } from '@sveltejs/kit';
+import { type RequestHandler, json, error } from '@sveltejs/kit';
 
 export const POST: RequestHandler = async ({ request, cookies }) => {
-	const FormData = await request.formData();
+	const FormData = await request.formData().catch(() => {});
+	if (!FormData) return error(400, 'No body provided');
 	const username = FormData.get('username')?.toString();
 	const handle = FormData.get('email')?.toString();
 	const password = FormData.get('password')?.toString();
@@ -12,11 +13,12 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 			'Content-Type': 'application/json',
 		},
 		body: JSON.stringify({ username, handle, password }),
-	});
+	}).catch(() => {});
 
-	const data = await auth.json();
+	const data = await auth?.json().catch(() => {});
 
-	if (!data.token) return json({ message: data.message }, { status: auth.status });
+	if (!data || !data.token)
+		return error(auth?.status || 500, auth?.statusText || 'Internal Server Error');
 
 	cookies.set('token', data.token, {
 		// expires: new Date(Date.now() +  * 1000),

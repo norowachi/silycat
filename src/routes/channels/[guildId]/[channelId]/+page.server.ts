@@ -1,6 +1,6 @@
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import type { IChannel, IGuild, IMessage, IUser } from '$lib/interfaces';
+import type { IChannel, IGuild, IMessage, IUser } from '$lib/interfaces/delta';
 
 export const load: PageServerLoad = async ({ params, cookies }) => {
 	const token = cookies.get('token');
@@ -12,10 +12,10 @@ export const load: PageServerLoad = async ({ params, cookies }) => {
 			headers: {
 				Authorization: `Bearer ${token}`,
 			},
-		}).catch(console.error)
+		}).catch(() => {})
 	)
 		?.json()
-		.catch(console.error)) as IUser;
+		.catch(() => {})) as IUser;
 	if (!user) return error(401, 'Unauthorized');
 
 	const { guildId, channelId } = params;
@@ -26,10 +26,10 @@ export const load: PageServerLoad = async ({ params, cookies }) => {
 			headers: {
 				Authorization: `Bearer ${token}`,
 			},
-		}).catch(console.error)
+		}).catch(() => {})
 	)
 		?.json()
-		.catch(console.error)) as IGuild;
+		.catch(() => {})) as IGuild;
 
 	// send 404 if the guild is not found
 	if (!guild) return error(404, 'Guild not found');
@@ -41,10 +41,10 @@ export const load: PageServerLoad = async ({ params, cookies }) => {
 				headers: {
 					Authorization: `Bearer ${token}`,
 				},
-			}).catch(console.error)
+			}).catch(() => {})
 		)
 			?.json()
-			.catch(console.error)
+			.catch(() => {})
 	)?.channels;
 
 	// Filter out channels that the user is not a member of
@@ -62,10 +62,10 @@ export const load: PageServerLoad = async ({ params, cookies }) => {
 				headers: {
 					Authorization: `Bearer ${token}`,
 				},
-			}).catch(console.error)
+			}).catch(() => {})
 		)
 			?.json()
-			.catch(console.error)
+			.catch(() => {})
 	)?.messages;
 
 	if (!messages) return error(500, 'Internal Server Error');

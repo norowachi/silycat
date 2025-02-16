@@ -1,7 +1,8 @@
-import { type RequestHandler, json } from '@sveltejs/kit';
+import { type RequestHandler, error, json } from '@sveltejs/kit';
 
 export const POST: RequestHandler = async ({ request, cookies }) => {
-	const FormData = await request.formData();
+	const FormData = await request.formData().catch(() => {});
+	if (!FormData) return error(400, 'No body provided');
 	const login = FormData.get('login')?.toString();
 	const password = FormData.get('password')?.toString();
 	let username = null;
@@ -13,6 +14,9 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 		username = login;
 	}
 
+	if (!username || !handle) return error(400, 'Invalid login');
+	if (!password) return error(400, 'No password provided');
+
 	const auth = await fetch('https://api.noro.cc/auth/login', {
 		method: 'POST',
 		headers: {
@@ -22,7 +26,9 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 	}).catch(() => {});
 
 	const data = await auth?.json().catch(() => {});
-	if (!data || !data.token) return json({ message: data.message }, { status: auth?.status || 500 });
+
+	if (!data || !data.token)
+		return error(auth?.status || 500, data.message || 'Internal Server Error');
 
 	cookies.set('token', data.token, {
 		// expires: new Date(Date.now() +  * 1000),

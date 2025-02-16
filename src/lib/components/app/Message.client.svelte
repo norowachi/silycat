@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { IMessage } from '$lib/interfaces';
+	import type { IMessage } from '$lib/interfaces/delta';
 
 	let {
 		id,
@@ -16,6 +16,18 @@
 	const GroupUp =
 		lastMessage?.author.id === author.id &&
 		date.getTime() - new Date(lastMessage.createdAt).getTime() < 600000;
+
+	function formatContent() {
+		const isTenorGif = /^https?:\/\/media\.tenor\.com\/.*$/.test(content);
+		if (isTenorGif) {
+			const img = document.createElement('img');
+			img.src = content.replace(/<|>/, '');
+			// img.alt = content.split(/\//g)[5];
+			console.log(content.split(/\//g)[5]);
+			return img.innerHTML;
+		}
+		return content.replace(/^(\n|\s)+/, '');
+	}
 </script>
 
 {#if !GroupUp}
@@ -41,7 +53,16 @@
 		</div>
 	{/if}
 	<div class="text-wrap break-words px-2 whitespace-pre-line">
-		{content.replace(/^(\n|\s)+/, '')}
+		{#if /^<https?:\/\/media\.tenor\.com\/.*>$/.test(content)}
+			<img
+				src={content.replace(/<|>/, '')}
+				alt="img"
+				class="rounded-md pb-2"
+				style={GroupUp ? 'padding-top: 8px;' : ''}
+			/>
+		{:else}
+			{content.replace(/^(\n|\s)+/, '')}
+		{/if}
 	</div>
 
 	{#if embeds.length > 0}

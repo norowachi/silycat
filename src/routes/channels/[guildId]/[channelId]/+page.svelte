@@ -4,7 +4,7 @@
 	import type { PageProps } from './$types';
 	import io, { Socket } from 'socket.io-client';
 	import { writable } from 'svelte/store';
-	import { WebSocketOP } from '$lib/interfaces';
+	import { WebSocketOP } from '$lib/interfaces/delta';
 	import MessageBox from '$lib/components/app/MessageBox.client.svelte';
 
 	let { data }: PageProps = $props();
@@ -31,7 +31,6 @@
 		);
 
 		$socket.on('connect', () => {
-			console.log('connected');
 			$socket.emit('join', [data.guild.id]);
 		});
 
@@ -59,7 +58,6 @@
 
 	// Auto-scroll
 	messages.subscribe(async () => {
-		console.log('scrolling');
 		if (messageContainer) {
 			await new Promise((r) => setTimeout(r, 1));
 			messageContainer.scrollTo({
@@ -70,7 +68,6 @@
 	});
 
 	function ChatLength(entries: ResizeObserverEntry[]) {
-		console.log((entries[0].target as HTMLTextAreaElement).style);
 		const target = entries[0].target as HTMLTextAreaElement;
 		const app = document.getElementById('app')!;
 
