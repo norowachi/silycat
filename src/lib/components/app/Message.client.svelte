@@ -57,7 +57,7 @@
 			<img
 				src={content.replace(/<|>/, '')}
 				alt="img"
-				class="rounded-md pb-2"
+				class="pb-2 rounded-md"
 				style={GroupUp ? 'padding-top: 8px;' : ''}
 			/>
 		{:else}

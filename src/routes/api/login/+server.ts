@@ -14,7 +14,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 		username = login;
 	}
 
-	if (!username || !handle) return error(400, 'Invalid login');
+	if (!username && !handle) return error(400, 'Invalid login');
 	if (!password) return error(400, 'No password provided');
 
 	const auth = await fetch('https://api.noro.cc/auth/login', {

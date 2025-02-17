@@ -1,11 +1,11 @@
-import { error } from '@sveltejs/kit';
+import { error, redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import type { IChannel, IGuild, IMessage, IUser } from '$lib/interfaces/delta';
 
 export const load: PageServerLoad = async ({ params, cookies }) => {
 	const token = cookies.get('token');
 
-	if (!token) return error(401, 'Unauthorized');
+	if (!token) return redirect(303, '/');
 
 	const user = (await (
 		await fetch('https://api.noro.cc/v1/users/@me', {
