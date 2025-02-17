@@ -2,7 +2,7 @@
 	import Message from '$lib/components/app/Message.client.svelte';
 	import { onDestroy, onMount } from 'svelte';
 	import type { PageProps } from './$types';
-	import io, { Socket } from 'socket.io-client';
+	import io, { type Socket } from 'socket.io-client';
 	import { writable } from 'svelte/store';
 	import { WebSocketOP } from '$lib/interfaces/delta';
 	import MessageBox from '$lib/components/app/MessageBox.client.svelte';
