@@ -34,7 +34,7 @@ export const POST: RequestHandler = async ({ request }) => {
 
 	// call tenor api
 	const response = await fetch(
-		`https://tenor.googleapis.com/v2/search?q=${query}&key=${TENOR_API_KEY}&media_filter=tinygif&limit=20` +
+		`https://tenor.googleapis.com/v2/search?q=${query}&key=${TENOR_API_KEY}&media_filter=tinygif,gif&limit=20` +
 			next,
 	).catch(() => {});
 

@@ -1,19 +1,15 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import Tenor from './Tenor.client.svelte';
 
 	let { guildId, channelId } = $props();
 
-	async function OnClickSend(value?: string) {
+	async function OnClickSend() {
 		const chat = document.getElementById('chat') as HTMLTextAreaElement;
 		if (!chat) return;
-		const message = value || chat.value.replace(/^(\n|\s)+/, '');
+		const message = chat.value.replace(/^(\n|\s)+/, '');
 		if (!message) return;
-
-		if (!value) {
-			chat.value = '';
-			chat.style.height = 'auto';
-		}
+		chat.value = '';
+		chat.style.height = 'auto';
 
 		await fetch(`/api/message/${guildId}/${channelId}`, {
 			method: 'POST',
@@ -25,35 +21,13 @@
 		return;
 	}
 
-	async function OnClickGifs() {
+	async function OnClickGifsTab() {
 		const tab = document.getElementById('gifs-tab');
 		if (!tab) return;
 
 		if (tab.style.display === 'none') tab.style.display = 'block';
 		else tab.style.display = 'none';
 	}
-
-	onMount(() => {
-		document.onclick = (e) => {
-			const tab = document.getElementById('gifs-tab') as HTMLDivElement;
-			if (!tab) return;
-			const target = e.target as HTMLElement;
-			// TODO: rewrite this shit
-			if (target.ariaLabel === 'gif' && target.tagName === 'IMG') {
-				OnClickSend('<' + (target as HTMLImageElement).src.replace('C/', 'M/') + '>');
-				tab.style.display = 'none';
-				return;
-			}
-			// ignore the attach button, which is the caller
-			if ([target.ariaLabel, document.activeElement?.ariaLabel].includes('Attach')) return;
-			// if the click is within the tab
-			if (tab.contains(target)) return;
-
-			if (tab.style.display !== 'none') {
-				tab.style.display = 'none';
-			}
-		};
-	});
 </script>
 
 <div
@@ -63,7 +37,7 @@
 		type="button"
 		class="inline-flex justify-center p-2 text-gray-500 rounded-lg cursor-pointer hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-600"
 		aria-label="Attach"
-		onclick={OnClickGifs}
+		onclick={OnClickGifsTab}
 	>
 		<svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"
 			><path
@@ -113,7 +87,7 @@
 		class="absolute h-lg bottom-[60px] overflow-y-auto snap-y snap-proximity"
 		style="display: none;"
 	>
-		<Tenor />
+		<Tenor {guildId} {channelId} />
 	</div>
 	<button
 		onclick={() => OnClickSend()}
