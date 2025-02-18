@@ -6,17 +6,18 @@
 		GIF_OBJECT,
 		SearchResponse,
 	} from '$lib/interfaces/tenor';
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import { writable } from 'svelte/store';
 
 	let { guildId, channelId } = $props();
 
 	let loader = $state<HTMLSpanElement>();
-	let container = writable<HTMLDivElement>();
 	const query = writable<string | undefined>();
 	const next = writable<string | undefined>();
 	const gifs = writable<GIF_OBJECT[]>([]);
 	const categories = writable<CATEGORY_OBJECT[]>([]);
+
+	const AbortSignal = new AbortController();
 
 	async function getTenorGifs(input_next?: string) {
 		if ($gifs.length >= 100) return;
@@ -35,7 +36,7 @@
 			filteredResults = data.results.filter(
 				({ id: newId }) => !$gifs.find(({ id: oldId }) => oldId === newId),
 			);
-		console.log($query, input_next, data.results, $gifs, $next);
+
 		gifs.update((old) => (input_next ? [...old, ...filteredResults] : data.results));
 		next.set(data.next);
 		return;
@@ -71,9 +72,9 @@
 
 	onMount(() => {
 		query.subscribe(async (value) => {
+			if (!value || value.length < 3) return gifs.set([]);
 			// timeout for the user to finish typing
 			await new Promise((r) => setTimeout(r, 1200));
-			console.log(value, $query);
 			// if the value is the same as the current query
 			if (value && value === $query) {
 				// resets the gifs to show the skeleton
@@ -83,48 +84,46 @@
 			return;
 		});
 
-		container.subscribe(() => {
-			if (
-				$container?.parentElement?.style.display !== 'none' &&
-				!$gifs?.length &&
-				!$categories?.length
-			) {
-				fetch('/api/tenor')
-					.then((res) => res.json().then((data: CategoryResponse) => categories.set(data.tags)))
-					.catch(console.error);
-			}
-		});
+		fetch('/api/tenor')
+			.then((res) => res.json().then((data: CategoryResponse) => categories.set(data.tags)))
+			.catch(console.error);
 
-		document.onclick = (e) => {
-			const tab = document.getElementById('gifs-tab') as HTMLDivElement;
-			if (!tab) return;
-			const target = e.target as HTMLElement;
-			if (target.id === 'gif' && target.tagName === 'IMG') {
-				const img = target as HTMLImageElement;
-				const gif = $gifs.find(({ media_formats }) => media_formats.tinygif.url === img.src);
-				if (!gif) return;
-				OnClickSendGifEmbed({
-					url: gif.media_formats.gif.url,
-					width: gif.media_formats.gif.dims[0] ?? 0,
-					height: gif.media_formats.gif.dims[1] ?? 0,
-				});
-				tab.style.display = 'none';
-				query.set(undefined);
-				next.set(undefined);
+		document.addEventListener(
+			'click',
+			(e) => {
+				const tab = document.getElementById('gifs-tab') as HTMLDivElement;
+				if (!tab) return;
+				const target = e.target as HTMLElement;
+				if (target.id === 'gif' && target.tagName === 'IMG') {
+					const img = target as HTMLImageElement;
+					const gif = $gifs.find(({ media_formats }) => media_formats.tinygif.url === img.src);
+					if (!gif) return;
+					OnClickSendGifEmbed({
+						url: gif.media_formats.gif.url,
+						width: gif.media_formats.gif.dims[0] ?? 0,
+						height: gif.media_formats.gif.dims[1] ?? 0,
+					});
+					gifs.set([]);
+					query.set(undefined);
+					next.set(undefined);
+					tab.style.display = 'none';
+					return;
+				}
+				// ignore the attach button, which is the caller
+				if ([target.ariaLabel, document.activeElement?.ariaLabel].includes('Attach')) return;
+				// if the click is within the tab
+				if (tab.contains(target)) return;
+
+				if (tab.style.display !== 'none') {
+					gifs.set([]);
+					query.set(undefined);
+					next.set(undefined);
+					tab.style.display = 'none';
+				}
 				return;
-			}
-			// ignore the attach button, which is the caller
-			if ([target.ariaLabel, document.activeElement?.ariaLabel].includes('Attach')) return;
-			// if the click is within the tab
-			if (tab.contains(target)) return;
-
-			if (tab.style.display !== 'none') {
-				gifs.set([]);
-				query.set(undefined);
-				next.set(undefined);
-				tab.style.display = 'none';
-			}
-		};
+			},
+			{ signal: AbortSignal.signal },
+		);
 	});
 
 	$effect(() => {
@@ -141,33 +140,28 @@
 				},
 			).observe(loader);
 	});
+
+	onDestroy(AbortSignal.abort);
 </script>
 
 <div class="flex flex-col overflow-hidden w-full h-full">
 	<input
 		type="text"
 		placeholder="Search for a gif"
-		class="sticky w-full border-3 border-b-0 border-gray-7 p-2 text-white placeholder-gray-8 rounded-lg rounded-b-0 focus:outline-none bg-gradient-to-b from-white to-gray-7 focus:from-cyan focus:to-gray-7"
+		class="sticky w-full border-3 border-gray-7 p-2 text-white placeholder-gray-8 rounded-lg rounded-b-0 focus:outline-none bg-gradient-to-b from-white to-gray-7 focus:from-cyan focus:to-gray-7"
+		maxlength="50"
 		bind:value={$query}
-		onkeydown={async (e) => {
-			if (!e.repeat && e.key === 'Enter') {
-				await getTenorGifs();
-			}
-		}}
 	/>
-	<div
-		class="top-4 bg-gray-7 overflow-y-scroll rounded-lg rounded-t-0 rounded-b-0 h-100vh"
-		bind:this={$container}
-	>
-		<div class="grid grid-auto-rows-auto cols-2 w-md lg:w-xl p-1 gap-1 lg:p-2 lg:gap-2">
+	<div class="bg-gray-7 overflow-y-scroll rounded-lg rounded-t-0 rounded-b-0 h-100vh">
+		<div class="w-xs md:w-md lg:w-lg grid grid-auto-rows-auto cols-2 p-1 gap-1 lg:p-2 lg:gap-2">
 			{#if $query && !$gifs?.length}
 				<!-- skeleton -->
 				{#each Array.from({ length: 10 }), i (i)}
-					<div class="w-full h-128px lg:h-[calc(128px*1.3)] bg-gray-8 rounded-md animate-pulse"></div>
+					<div class="h-128px lg:h-167px bg-gray-8 rounded-md animate-pulse"></div>
 				{/each}
 			{:else if !$gifs?.length}
 				{#each $categories as category (category.name)}
-					<div class="relative w-full h-128px lg:h-[calc(128px*1.3)] cursor-pointer">
+					<div class="relative w-full h-128px lg:h-167px cursor-pointer">
 						<img
 							src={category.image}
 							alt={category.name}

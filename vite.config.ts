@@ -1,6 +1,6 @@
 import { sveltekit } from '@sveltejs/kit/vite';
-import { defineConfig } from 'vite';
 import UnoCSS from '@unocss/svelte-scoped/vite';
+import { defineConfig } from 'vite';
 
 export default defineConfig({
 	plugins: [
@@ -10,7 +10,7 @@ export default defineConfig({
 		}),
 		sveltekit(),
 	],
-	optimizeDeps: {
-		exclude: ['socket.io-client'],
+	server: {
+		allowedHosts: ['beta.noro.cc'],
 	},
 });

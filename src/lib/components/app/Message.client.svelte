@@ -25,7 +25,9 @@
 {#if !GroupUp}
 	<div class="pt-3"></div>
 {/if}
-<div class="w-full px-2 rounded-md transition-colors duration-100 ease-in-out hover:bg-pink-300">
+<div
+	class="w-full px-2 rounded-md transition-colors duration-100 ease-in-out hover:bg-pink-300 dark:hover:bg-#640739"
+>
 	{#if !GroupUp}
 		<div class="w-full inline-flex items-center mx-auto pt-1">
 			<img
@@ -38,7 +40,7 @@
 			/>
 			<h3 class="ml-2">
 				<span class="text-lg cursor-pointer hover:underline">{author.username}</span>
-				<span class="text-gray-500 text-xs pointer-events-none">
+				<span class="text-gray-600 dark:text-gray-400 text-xs pointer-events-none">
 					{date.toDateString()}
 					{date.toLocaleTimeString(undefined, { timeStyle: 'short' })}
 				</span>
@@ -61,7 +63,7 @@
 						alt={embed.image.url}
 						width={embed.image.width}
 						height={embed.image.height}
-						class="rounded-md max-w-sm"
+						class="rounded-md max-w-90%"
 						loading="lazy"
 					/>
 				{/if}

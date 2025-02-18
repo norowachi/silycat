@@ -1,9 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:ital,wght@0,700;1,700&display=swap');
 
 body {
-	font-family: 'Comic Neue', 'Comic Sans', serif !important;
+	font-family: 'Comic Neue', 'Comic Sans MS', 'Comic Sans', sans-serif;
 	background: #f472b6;
 	color: white;
+	&.dark {
+		background: #840a4a;
+	}
 }
 
 a {
@@ -26,5 +29,23 @@ a {
 	transition: all 500ms ease;
 	&:hover {
 		transform: rotate(360deg);
+	}
+}
+
+@keyframes enter {
+	0% {
+		opacity: var(--tw-enter-opacity, 1);
+		transform: translate3d(var(--tw-enter-translate-x, 0), var(--tw-enter-translate-y, 0), 0)
+			scale3d(var(--tw-enter-scale, 1), var(--tw-enter-scale, 1), var(--tw-enter-scale, 1))
+			rotate(var(--tw-enter-rotate, 0));
+	}
+}
+
+@keyframes exit {
+	to {
+		opacity: var(--tw-exit-opacity, 1);
+		transform: translate3d(var(--tw-exit-translate-x, 0), var(--tw-exit-translate-y, 0), 0)
+			scale3d(var(--tw-exit-scale, 1), var(--tw-exit-scale, 1), var(--tw-exit-scale, 1))
+			rotate(var(--tw-exit-rotate, 0));
 	}
 }

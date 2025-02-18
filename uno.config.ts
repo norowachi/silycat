@@ -1,4 +1,11 @@
-import { defineConfig, presetIcons, presetUno, presetWind } from 'unocss';
+import {
+	defineConfig,
+	presetIcons,
+	presetUno,
+	presetWind,
+	PresetUnoTheme,
+	presetWebFonts,
+} from 'unocss';
 import PresetRemToPX from '@unocss/preset-rem-to-px';
 
 export default defineConfig({
@@ -12,5 +19,5 @@ export default defineConfig({
 			],
 		},
 	},
-	presets: [PresetRemToPX(), presetUno(), presetWind(), presetIcons({ scale: 1.2 })],
+	presets: [PresetRemToPX(), presetUno()],
 });

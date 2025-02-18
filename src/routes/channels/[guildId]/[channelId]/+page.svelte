@@ -9,11 +9,10 @@
 
 	let { data }: PageProps = $props();
 
-	const messages = writable(data.messages);
-
-	const socket = writable<Socket>();
-
+	let app = $state<HTMLElement>();
 	let messageContainer = $state<HTMLElement>();
+	const messages = writable(data.messages);
+	const socket = writable<Socket>();
 
 	onMount(() => {
 		if (messageContainer)
@@ -69,9 +68,9 @@
 
 	function ChatLength(entries: ResizeObserverEntry[]) {
 		const target = entries[0].target as HTMLTextAreaElement;
-		const app = document.getElementById('app')!;
+		if (!app) return;
 
-		app.style.height = 'calc(100vh - 20px - ' + target.clientHeight + 'px)';
+		app.style.height = 'calc(100vh - 16px - ' + target.clientHeight + 'px)';
 
 		if (messageContainer) {
 			messageContainer.scrollTo({
@@ -79,11 +78,16 @@
 				behavior: 'instant',
 			});
 		}
+		return;
 	}
 </script>
 
-<main class="flex flex-col w-full overflow-hidden" style="height: calc(100vh - 60px)">
-	<section bind:this={messageContainer} class="overflow-y-auto snap-y snap-mandatory pb-1.5">
+<main
+	bind:this={app}
+	class="flex flex-col w-full overflow-hidden"
+	style="height: calc(100vh - 60px)"
+>
+	<section bind:this={messageContainer} class="overflow-y-auto snap-y snap-mandatory">
 		<ul class="snap-end">
 			{#each $messages as { id, content, embeds, author, createdAt }, i (id)}
 				<il>
@@ -96,6 +100,4 @@
 		</ul>
 	</section>
 </main>
-<div class="w-full sticky bottom-1">
-	<MessageBox guildId={data.guild.id} channelId={data.channel.id} />
-</div>
+<MessageBox guildId={data.guild.id} channelId={data.channel.id} />

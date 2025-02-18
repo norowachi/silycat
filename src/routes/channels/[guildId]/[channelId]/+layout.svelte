@@ -1,4 +1,5 @@
 <script lang="ts">
+	import ContextMenu from '$lib/components/ContextMenu.client.svelte';
 	import '../../../../app.css';
 	import { onMount } from 'svelte';
 
@@ -30,5 +31,6 @@
 		</svg>
 	{:else}
 		{@render children()}
+		<ContextMenu />
 	{/if}
 </div>

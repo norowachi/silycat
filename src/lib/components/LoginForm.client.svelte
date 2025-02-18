@@ -19,7 +19,7 @@
 
 <form {onsubmit} class="w-full max-w-md mx-auto flex flex-col justify-center items-center">
 	<ol class="flex flex-col justify-center">
-		<il class="ml-[-12px] pl-2 rounded-sm border-l-4 border-purple-600 text-lg mb-2">
+		<il class="ml--12px pl-2 rounded-sm border-l-4 border-purple-600 text-lg mb-2">
 			Login
 			<span class="text-red-600">*</span>
 		</il>
@@ -37,7 +37,7 @@
 				required
 			/>
 		</il>
-		<il class="ml-[-12px] pl-2 rounded-sm border-l-4 border-purple-600 text-lg my-2">
+		<il class="ml--12px pl-2 rounded-sm border-l-4 border-purple-600 text-lg my-2">
 			Password
 			<span class="text-red-600">*</span>
 		</il>
