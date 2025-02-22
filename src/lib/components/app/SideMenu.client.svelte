@@ -17,18 +17,16 @@
 		if (!$menu || (e.target as HTMLElement).ariaLabel === 'menu-button') return;
 		if (!$menu.contains(e.target as Node)) $menu.dataset.open = 'false';
 	});
-
-	console.log(guild, channel);
 </script>
 
-<section class="relative w-full bg-gray-7">
-	<div class="*:p-2">
+<section class="relative w-full bg-gray-7 max-h-40px">
+	<div>
 		<!-- TODO: change this ugly format -->
-		<h1 class="text-lg float-left">#{channel.name} @ {guild.name}</h1>
+		<span class="text-lg float-left py-1.5 px-2">#{channel.name} @ {guild.name}</span>
 		<button
 			aria-label="menu-button"
 			title="Toggle Menu"
-			class="mr-2 float-right"
+			class="mr-2 p-2 float-right"
 			onclick={() => {
 				if ($menu) $menu.dataset.open = $menu.dataset.open === 'true' ? 'false' : 'true';
 			}}

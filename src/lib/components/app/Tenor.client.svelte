@@ -87,10 +87,10 @@
 			.then((res) => res.json().then((data: CategoryResponse) => categories.set(data.tags)))
 			.catch(console.error);
 
-		controller.update((old) => {
-			if (old) old.abort();
-			return new AbortController();
-		});
+		// abort old controller and reset a new one
+		const NewController = new AbortController();
+		if ($controller) $controller.abort();
+		controller.set(NewController);
 
 		document.addEventListener(
 			'click',
@@ -126,7 +126,7 @@
 				}
 				return;
 			},
-			{ signal: $controller.signal },
+			{ signal: NewController.signal },
 		);
 	});
 
