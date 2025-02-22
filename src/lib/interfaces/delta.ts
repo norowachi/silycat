@@ -72,7 +72,7 @@ export interface IChannel {
 	id: string;
 	name: string;
 	stickyMessage?: IMessage;
-	messages: IMessage[];
+	messages: number;
 	guildId: string;
 	members: string[];
 	type: ChannelTypes;
