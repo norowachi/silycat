@@ -35,6 +35,7 @@
 >
 	<button
 		type="button"
+		title="Attach Image"
 		class="inline-flex justify-center p-2 text-gray-500 rounded-lg cursor-pointer hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-600"
 		aria-label="Attach"
 		onclick={OnClickGifsTab}
@@ -56,6 +57,7 @@
 	</div>
 	<button
 		type="button"
+		title="Emojis"
 		class="p-2 text-gray-500 rounded-lg cursor-pointer hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-600"
 		aria-label="Emoji"
 	>
@@ -91,6 +93,7 @@
 	></textarea>
 	<button
 		type="button"
+		title="Send"
 		onclick={(e) => {
 			e.preventDefault();
 			OnClickSend();

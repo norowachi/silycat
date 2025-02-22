@@ -5,7 +5,7 @@
 	let ShowRegister = $state(false);
 </script>
 
-<h1 class="text-4xl font-bold text-center my-4">
+<h1 class="text-5xl text-center my-4">
 	Welcome to <a href="https://s.ily.cat">s.ily.cat</a>
 </h1>
 

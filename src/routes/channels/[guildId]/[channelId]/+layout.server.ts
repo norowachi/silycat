@@ -1,8 +1,8 @@
 import { error, redirect } from '@sveltejs/kit';
-import type { PageServerLoad } from './$types';
+import type { LayoutServerLoad } from './$types';
 import type { IChannel, IGuild, IMessage, IUser } from '$lib/interfaces/delta';
 
-export const load: PageServerLoad = async ({ params, cookies }) => {
+export const load: LayoutServerLoad = async ({ params, cookies, url }) => {
 	const token = cookies.get('token');
 
 	if (!token) return redirect(303, '/');
@@ -26,10 +26,10 @@ export const load: PageServerLoad = async ({ params, cookies }) => {
 			headers: {
 				Authorization: `Bearer ${token}`,
 			},
-		}).catch(() => {})
+		}).catch(console.error)
 	)
 		?.json()
-		.catch(() => {})) as IGuild;
+		.catch(console.error)) as IGuild;
 
 	// send 404 if the guild is not found
 	if (!guild) return error(404, 'Guild not found');
@@ -41,10 +41,10 @@ export const load: PageServerLoad = async ({ params, cookies }) => {
 				headers: {
 					Authorization: `Bearer ${token}`,
 				},
-			}).catch(() => {})
+			}).catch(console.error)
 		)
 			?.json()
-			.catch(() => {})
+			.catch(console.error)
 	)?.channels;
 
 	// Filter out channels that the user is not a member of
@@ -62,13 +62,13 @@ export const load: PageServerLoad = async ({ params, cookies }) => {
 				headers: {
 					Authorization: `Bearer ${token}`,
 				},
-			}).catch(() => {})
+			}).catch(console.error)
 		)
 			?.json()
-			.catch(() => {})
+			.catch(console.error)
 	)?.messages;
 
-	if (!messages) return error(500, 'Internal Server Error');
+	if (!messages?.length) return error(404, "Cloudn't fetch messages");
 
 	// TODO: use the guild and channel fetching in the layout
 	return {

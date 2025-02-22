@@ -23,12 +23,12 @@ export const POST: RequestHandler = async ({ params, request, cookies }) => {
 			content: body.content,
 			embeds: body.embeds,
 		} as Partial<IMessage>),
-	}).catch(() => {});
+	}).catch(console.error);
 
 	if (!result || !result.ok)
 		return error(result?.status || 500, result?.statusText || 'Internal Server Error');
 
-	const data = await result.json().catch(() => {});
+	const data = await result.json().catch(console.error);
 
 	if (!data) return error(500, 'Internal Server Error');
 

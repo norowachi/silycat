@@ -31,7 +31,7 @@
 
 <form {onsubmit} class="w-full max-w-sm mx-auto">
 	<div class="mb-4">
-		<label class="block text-sm font-bold mb-2" for="username">
+		<label class="block text-sm mb-2" for="username">
 			Username
 			<span class="text-red-600">*</span>
 		</label>
@@ -49,11 +49,11 @@
 		/>
 	</div>
 	<!-- <div class="mb-4">
-		<label class="block text-sm font-bold mb-2" for="email">Handle</label>
+		<label class="block text-sm mb-2" for="email">Handle</label>
 		<input type="email" id="email" name="email" placeholder="username@delta.noro.cc" />
 	</div> -->
 	<div class="mb-4">
-		<label class="block text-sm font-bold mb-2" for="password">
+		<label class="block text-sm mb-2" for="password">
 			Password
 			<span class="text-red-600">*</span>
 		</label>
@@ -68,7 +68,7 @@
 		/>
 	</div>
 	<div class="mb-4">
-		<label class="block text-sm font-bold mb-2" for="confirm-password">
+		<label class="block text-sm mb-2" for="confirm-password">
 			Confirm Password
 			<span class="text-red-600">*</span>
 		</label>
@@ -88,7 +88,7 @@
 		</label>
 	</div>
 	<button
-		class="text-sm font-bold py-2 px-4 rounded-md transition duration-300 float-right"
+		class="text-sm py-2 px-4 rounded-md transition duration-300 float-right"
 		type="submit"
 	>
 		Register

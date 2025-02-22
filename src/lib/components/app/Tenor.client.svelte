@@ -169,7 +169,7 @@
 							loading="lazy"
 						/>
 						<div
-							class="w-full absolute inset-0 flex items-center justify-center bg-black/50 text-white text-xl font-bold rounded-md"
+							class="w-full absolute inset-0 flex items-center justify-center bg-black/50 text-white text-xl rounded-md"
 						>
 							{category.name}
 						</div>

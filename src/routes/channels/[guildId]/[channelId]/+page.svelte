@@ -6,6 +6,7 @@
 	import { writable } from 'svelte/store';
 	import { WebSocketOP } from '$lib/interfaces/delta';
 	import MessageBox from '$lib/components/app/MessageBox.client.svelte';
+	import { afterNavigate, beforeNavigate } from '$app/navigation';
 
 	let { data }: PageProps = $props();
 
@@ -51,6 +52,14 @@
 		new ResizeObserver(ChatLength).observe(document.getElementById('chat')!);
 	});
 
+	afterNavigate(() => {
+		messages.set(data.messages);
+		// TODO: create room joining for the new channel
+		// and leaving the old one (missing in backend)
+		// for now its not a big deal as we just join the whole guild's room
+		// may not even be a problem as we want to keep getting messages from the whole guild
+	});
+
 	onDestroy(() => {
 		$socket.disconnect();
 	});
@@ -70,7 +79,7 @@
 		const target = entries[0].target as HTMLTextAreaElement;
 		if (!app) return;
 
-		app.style.height = 'calc(100vh - 16px - ' + target.clientHeight + 'px)';
+		app.style.height = 'calc(100vh - 56px - ' + target.clientHeight + 'px)';
 
 		if (messageContainer) {
 			messageContainer.scrollTo({
@@ -85,7 +94,7 @@
 <main
 	bind:this={app}
 	class="flex flex-col w-full overflow-hidden"
-	style="height: calc(100vh - 60px)"
+	style="height: calc(100vh - 100px)"
 >
 	<section bind:this={messageContainer} class="overflow-y-auto snap-y snap-mandatory">
 		<ul class="snap-end">

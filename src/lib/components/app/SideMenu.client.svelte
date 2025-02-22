@@ -1,0 +1,84 @@
+<script lang="ts">
+	import type { IChannel, IGuild } from '$lib/interfaces/delta';
+	import { writable } from 'svelte/store';
+
+	const {
+		channel,
+		guild,
+	}: {
+		channel: Pick<IChannel, 'id' | 'name' | 'type'>;
+		guild: Pick<IGuild, 'id' | 'name' | 'channels' | 'members' | 'ownerId' | 'icon'>;
+	} = $props();
+
+	let menu = writable<HTMLElement>();
+
+	// on click, if its not in the menu, close the menu
+	document.addEventListener('click', (e) => {
+		if (!$menu || (e.target as HTMLElement).ariaLabel === 'menu-button') return;
+		if (!$menu.contains(e.target as Node)) $menu.dataset.open = 'false';
+	});
+
+	console.log(guild, channel);
+</script>
+
+<section class="relative w-full bg-gray-7">
+	<div class="*:p-2">
+		<!-- TODO: change this ugly format -->
+		<h1 class="text-lg float-left">#{channel.name} @ {guild.name}</h1>
+		<button
+			aria-label="menu-button"
+			title="Toggle Menu"
+			class="mr-2 float-right"
+			onclick={() => {
+				if ($menu) $menu.dataset.open = $menu.dataset.open === 'true' ? 'false' : 'true';
+			}}
+		>
+			☰
+		</button>
+	</div>
+
+	<div
+		bind:this={$menu}
+		data-open={$menu?.dataset.open || 'false'}
+		class="fixed top-0 right-0 h-full w-64 bg-gray-8 transition-transform duration-300 z-999999"
+	>
+		<div class="pl-4 pr-2 flex justify-between items-center">
+			<h2 class="p-2 text-lg">{guild.name}</h2>
+			<button
+				title="Close Menu"
+				class="p-2"
+				onclick={() => {
+					if ($menu) $menu.dataset.open = 'false';
+				}}
+			>
+				✖
+			</button>
+		</div>
+		<nav class="*:w-full text-end">
+			{#each guild.channels as { id, name, type } (id)}
+				<a
+					href={`/channels/${guild.id}/${id}`}
+					class="block p-2 hover:bg-gray-9 {id === channel.id && 'active'}"
+				>
+					{name}
+				</a>
+			{/each}
+		</nav>
+	</div>
+</section>
+
+<style lang="postcss">
+	[data-open='true'] {
+		transform: translateX(0);
+	}
+
+	[data-open='false'] {
+		transform: translateX(100%);
+	}
+
+	a.active {
+		background-color: #4a5568;
+		color: lime;
+		pointer-events: none;
+	}
+</style>

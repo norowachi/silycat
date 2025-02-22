@@ -1,9 +1,11 @@
 <script lang="ts">
+	import SideMenu from '$lib/components/app/SideMenu.client.svelte';
 	import ContextMenu from '$lib/components/ContextMenu.client.svelte';
 	import '../../../../app.css';
 	import { onMount } from 'svelte';
+	import type { LayoutProps } from './$types';
 
-	let { children } = $props();
+	let { children, data }: LayoutProps = $props();
 	let mounted = $state(false);
 
 	onMount(() => {
@@ -30,6 +32,7 @@
 			/>
 		</svg>
 	{:else}
+		<SideMenu channel={data.channel} guild={data.guild} />
 		{@render children()}
 		<ContextMenu />
 	{/if}
