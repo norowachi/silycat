@@ -34,10 +34,10 @@
 	}
 
 	menu.subscribe((menu) => {
-		if ($controller) $controller.abort();
-
-		const NewController = new AbortController();
-		controller.set(NewController);
+		controller.update((old) => {
+			if (old) old.abort();
+			return new AbortController();
+		});
 
 		// hide menu if its open
 		document.addEventListener(
@@ -46,11 +46,11 @@
 				opened.set(false);
 				canOpenNative.set(false);
 			},
-			{ signal: NewController.signal },
+			{ signal: $controller.signal },
 		);
-		document.addEventListener('auxclick', () => opened.set(false), { signal: NewController.signal });
+		document.addEventListener('auxclick', () => opened.set(false), { signal: $controller.signal });
 		// open the context menu
-		document.addEventListener('contextmenu', rightClick, { signal: NewController.signal });
+		document.addEventListener('contextmenu', rightClick, { signal: $controller.signal });
 
 		function rightClick(e: MouseEvent) {
 			if ($canOpenNative || !menu) {

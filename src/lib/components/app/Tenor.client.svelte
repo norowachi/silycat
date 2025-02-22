@@ -16,8 +16,7 @@
 	const next = writable<string | undefined>();
 	const gifs = writable<GIF_OBJECT[]>([]);
 	const categories = writable<CATEGORY_OBJECT[]>([]);
-
-	const AbortSignal = new AbortController();
+	let controller = writable<AbortController>();
 
 	async function getTenorGifs(input_next?: string) {
 		if ($gifs.length >= 100) return;
@@ -88,6 +87,11 @@
 			.then((res) => res.json().then((data: CategoryResponse) => categories.set(data.tags)))
 			.catch(console.error);
 
+		controller.update((old) => {
+			if (old) old.abort();
+			return new AbortController();
+		});
+
 		document.addEventListener(
 			'click',
 			(e) => {
@@ -122,7 +126,7 @@
 				}
 				return;
 			},
-			{ signal: AbortSignal.signal },
+			{ signal: $controller.signal },
 		);
 	});
 
@@ -141,7 +145,7 @@
 			).observe(loader);
 	});
 
-	onDestroy(AbortSignal.abort);
+	onDestroy(() => $controller?.abort());
 </script>
 
 <div class="flex flex-col overflow-hidden w-full h-full">
