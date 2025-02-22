@@ -54,11 +54,11 @@
 				✖
 			</button>
 		</div>
-		<nav class="*:w-full text-end">
-			{#each guild.channels as { id, name, type } (id)}
+		<nav class="*:w-full text-start space-y-1">
+			{#each guild.channels as { id, name } (id)}
 				<a
 					href={`/channels/${guild.id}/${id}`}
-					class="block p-2 hover:bg-gray-9 {id === channel.id && 'active'}"
+					class="block px-2 py-1 hover:bg-gray-9 text-cyan rounded-md {id === channel.id && 'active'}"
 				>
 					{name}
 				</a>
