@@ -71,6 +71,7 @@
 	</button>
 	<textarea
 		id="chat"
+		enterkeyhint="send"
 		rows="1"
 		class="block mx-4 p-2.5 max-h-300px w-full resize-none text-gray-900 bg-white rounded-lg border-gray-300 dark:text-gray-100 dark:bg-#606060 outline-none ring-red focus:ring-2"
 		placeholder="Your Message..."
