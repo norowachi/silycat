@@ -43,11 +43,14 @@
 		});
 
 		$socket.on('message', (message) => {
-			if (message.op === WebSocketOP.MESSAGE_CREATE)
+			if (message.op === WebSocketOP.MESSAGE_CREATE) {
+				const md: IMessage = message.d;
+				if (md.channelId !== data.channel.id) return;
 				// TODO: add a way to make messages show with gray text or so if they're still not sent
 				messages = (
-					messages?.find((m) => m.id === message.d.id) ? messages : [...(messages || []), message.d]
+					messages?.find((msg) => msg.id === md.id) ? messages : [...(messages || []), md]
 				)?.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+			}
 		});
 
 		const chat = document.getElementById('chat')!;
