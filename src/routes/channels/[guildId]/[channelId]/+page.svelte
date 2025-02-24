@@ -4,23 +4,25 @@
 	import type { PageProps } from './$types';
 	import io, { type Socket } from 'socket.io-client';
 	import { writable } from 'svelte/store';
-	import { WebSocketOP } from '$lib/interfaces/delta';
+	import { WebSocketOP, type IMessage } from '$lib/interfaces/delta';
 	import MessageBox from '$lib/components/app/MessageBox.client.svelte';
-	import { afterNavigate, beforeNavigate } from '$app/navigation';
+	import { afterNavigate } from '$app/navigation';
 
 	let { data }: PageProps = $props();
 
-	let app = $state<HTMLElement>();
-	let messageContainer = $state<HTMLElement>();
-	const messages = writable(data.messages);
+	let app: HTMLElement;
+	let messageContainer: HTMLElement;
+	let messages = $state<IMessage[]>([]);
 	const socket = writable<Socket>();
 
 	onMount(() => {
-		if (messageContainer)
-			messageContainer.scrollTo({
-				top: messageContainer.scrollHeight,
-				behavior: 'instant',
-			});
+		if (!messages.length)
+			fetch(`/api/message/${data.guild.id}/${data.channel.id}`)
+				.then(async (res) => {
+					const data = await res.json();
+					messages = data.messages;
+				})
+				.catch(console.error);
 
 		socket.set(
 			io('https://api.noro.cc', {
@@ -31,6 +33,7 @@
 		);
 
 		$socket.on('connect', () => {
+			console.log('[WS] Connected to the server');
 			$socket.emit('join', [data.guild.id]);
 		});
 
@@ -41,19 +44,17 @@
 
 		$socket.on('message', (message) => {
 			if (message.op === WebSocketOP.MESSAGE_CREATE)
-				messages.update((prev) =>
-					// TODO: add a way to make messages show with gray text or so if they're still not sent
-					(prev.find((m) => m.id === message.d.id) ? prev : [...prev, message.d]).sort(
-						(a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-					),
-				);
+				// TODO: add a way to make messages show with gray text or so if they're still not sent
+				messages = (
+					messages?.find((m) => m.id === message.d.id) ? messages : [...(messages || []), message.d]
+				)?.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
 		});
 
 		new ResizeObserver(ChatLength).observe(document.getElementById('chat')!);
 	});
 
 	afterNavigate(() => {
-		messages.set(data.messages);
+		if (messages.length) messages = data.messages;
 		// TODO: create room joining for the new channel
 		// and leaving the old one (missing in backend)
 		// for now its not a big deal as we just join the whole guild's room
@@ -61,13 +62,14 @@
 	});
 
 	onDestroy(() => {
+		console.log('[WS] Disconnecting from the server');
 		$socket.disconnect();
 	});
 
 	// Auto-scroll
-	messages.subscribe(async () => {
+	$effect.pre(() => {
+		messages;
 		if (messageContainer) {
-			await new Promise((r) => setTimeout(r, 1));
 			messageContainer.scrollTo({
 				top: messageContainer.scrollHeight,
 				behavior: 'instant',
@@ -93,14 +95,14 @@
 
 <main
 	bind:this={app}
-	class="flex flex-col w-full overflow-hidden"
+	class="flex flex-col-reverse w-full overflow-hidden"
 	style="height: calc(100vh - 100px)"
 >
-	<section bind:this={messageContainer} class="overflow-y-auto snap-y snap-mandatory">
-		<ul class="snap-end">
-			{#each $messages as { id, content, embeds, author, createdAt }, i (id)}
+	<section bind:this={messageContainer} class="w-full overflow-y-auto snap-y snap-mandatory">
+		<ul class="snap-end self-end">
+			{#each messages as { id, content, embeds, author, createdAt }, i (id)}
 				<il>
-					<Message {id} {content} {embeds} {author} {createdAt} lastMessage={$messages[i - 1]} />
+					<Message {id} {content} {embeds} {author} {createdAt} lastMessage={messages[i - 1]} />
 				</il>
 			{/each}
 			<il>

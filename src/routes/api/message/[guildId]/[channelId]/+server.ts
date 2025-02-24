@@ -13,7 +13,7 @@ export const POST: RequestHandler = async ({ params, request, cookies }) => {
 
 	if (!guildId || !channelId) return error(400, 'Invalid guild or channel ID');
 
-	const result = await fetch(`https://api.noro.cc/channels/${guildId}/${channelId}/messages`, {
+	const result = await fetch(`https://api.noro.cc/v1/channels/${guildId}/${channelId}/messages`, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
@@ -32,5 +32,31 @@ export const POST: RequestHandler = async ({ params, request, cookies }) => {
 
 	if (!data) return error(500, 'Internal Server Error');
 
-	return json({ data }, { status: 200 });
+	return json({ ...data }, { status: 200 });
+};
+
+export const GET: RequestHandler = async ({ params, cookies }) => {
+	const token = cookies.get('token');
+	if (!token) return error(401, 'Unauthorized');
+
+	const guildId = params.guildId;
+	const channelId = params.channelId;
+
+	if (!guildId || !channelId) return error(400, 'Invalid guild or channel ID');
+
+	console.log(guildId, channelId);
+	const result = await fetch(`https://api.noro.cc/v1/channels/${guildId}/${channelId}/messages`, {
+		headers: {
+			Authorization: `Bearer ${token}`,
+		},
+	}).catch(console.error);
+
+	if (!result || !result.ok)
+		return error(result?.status || 500, result?.statusText || 'Internal Server Error');
+
+	const data = await result.json().catch(console.error);
+
+	if (!data) return error(500, 'Internal Server Error');
+
+	return json({ ...data }, { status: 200 });
 };

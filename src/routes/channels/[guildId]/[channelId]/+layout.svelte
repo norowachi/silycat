@@ -32,7 +32,7 @@
 			/>
 		</svg>
 	{:else}
-		<SideMenu channel={data.channel} guild={data.guild} />
+		<SideMenu channel={data.channel} guild={data.guild} channels={data.channels} />
 		{@render children()}
 		<ContextMenu />
 	{/if}

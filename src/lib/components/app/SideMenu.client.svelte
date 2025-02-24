@@ -5,9 +5,11 @@
 	const {
 		channel,
 		guild,
+		channels,
 	}: {
 		channel: Pick<IChannel, 'id' | 'name' | 'type'>;
-		guild: Pick<IGuild, 'id' | 'name' | 'channels' | 'members' | 'ownerId' | 'icon'>;
+		guild: Pick<IGuild, 'id' | 'name' | 'members' | 'ownerId' | 'icon'>;
+		channels: Pick<IChannel, 'id' | 'name' | 'type'>[];
 	} = $props();
 
 	let menu = writable<HTMLElement>();
@@ -53,7 +55,7 @@
 			</button>
 		</div>
 		<nav class="*:w-full text-start space-y-1">
-			{#each guild.channels as { id, name } (id)}
+			{#each channels as { id, name } (id)}
 				<a
 					href={`/channels/${guild.id}/${id}`}
 					class="block px-2 py-1 hover:bg-gray-9 text-cyan rounded-md {id === channel.id && 'active'}"

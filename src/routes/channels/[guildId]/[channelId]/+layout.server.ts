@@ -1,8 +1,8 @@
 import { error, redirect } from '@sveltejs/kit';
 import type { LayoutServerLoad } from './$types';
-import type { IChannel, IGuild, IMessage, IUser } from '$lib/interfaces/delta';
+import type { IGuild, IMessage, IUser } from '$lib/interfaces/delta';
 
-export const load: LayoutServerLoad = async ({ params, cookies, url }) => {
+export const load: LayoutServerLoad = async ({ params, cookies }) => {
 	const token = cookies.get('token');
 
 	if (!token) return redirect(303, '/');
@@ -34,21 +34,8 @@ export const load: LayoutServerLoad = async ({ params, cookies, url }) => {
 	// send 404 if the guild is not found
 	if (!guild) return error(404, 'Guild not found');
 
-	// Fetch channels
-	const channels: IChannel[] = (
-		await (
-			await fetch(`https://api.noro.cc/v1/guilds/${guildId}/channels`, {
-				headers: {
-					Authorization: `Bearer ${token}`,
-				},
-			}).catch(console.error)
-		)
-			?.json()
-			.catch(console.error)
-	)?.channels;
-
 	// Filter out channels that the user is not a member of
-	const allowedChannels = channels.filter((channel) => channel.members.includes(user.id));
+	const allowedChannels = guild.channels.filter((channel) => channel.members.includes(user.id));
 	// Find the target channel
 	const TargetChannel = allowedChannels.find((channel) => channel.id === channelId);
 
@@ -56,7 +43,7 @@ export const load: LayoutServerLoad = async ({ params, cookies, url }) => {
 	if (!TargetChannel) return error(404, 'Channel not found');
 
 	// Fetch messages
-	const messages: IMessage[] = (
+	let messages: IMessage[] = (
 		await (
 			await fetch(`https://api.noro.cc/v1/channels/${guildId}/${channelId}/messages`, {
 				headers: {
@@ -68,7 +55,9 @@ export const load: LayoutServerLoad = async ({ params, cookies, url }) => {
 			.catch(console.error)
 	)?.messages;
 
-	if (!messages?.length) return error(404, "Cloudn't fetch messages");
+	messages ||= [];
+
+	// if (!messages?.length) return error(404, "Cloudn't fetch messages");
 
 	// TODO: use the guild and channel fetching in the layout
 	return {
