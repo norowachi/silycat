@@ -102,7 +102,6 @@
 	}
 </script>
 
-<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <main
 	bind:this={app}
 	class="flex flex-col-reverse w-full overflow-hidden"

@@ -48,10 +48,6 @@
 			required
 		/>
 	</div>
-	<!-- <div class="mb-4">
-		<label class="block text-sm mb-2" for="email">Handle</label>
-		<input type="email" id="email" name="email" placeholder="username@delta.noro.cc" />
-	</div> -->
 	<div class="mb-4">
 		<label class="block text-sm mb-2" for="password">
 			Password
