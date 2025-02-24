@@ -25,8 +25,11 @@
 		const tab = document.getElementById('gifs-tab');
 		if (!tab) return;
 
-		if (tab.style.display === 'none') tab.style.display = 'block';
-		else tab.style.display = 'none';
+		if (tab.style.display === 'none') {
+			tab.style.display = 'block';
+			await new Promise((r) => setTimeout(r, 1));
+			tab?.querySelector('input')?.focus();
+		} else tab.style.display = 'none';
 	}
 </script>
 
