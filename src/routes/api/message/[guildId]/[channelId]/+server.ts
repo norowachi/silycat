@@ -46,6 +46,7 @@ export const GET: RequestHandler = async ({ params, cookies }) => {
 
 	console.log(guildId, channelId);
 	const result = await fetch(`https://api.noro.cc/v1/channels/${guildId}/${channelId}/messages`, {
+		method: 'GET',
 		headers: {
 			Authorization: `Bearer ${token}`,
 		},

@@ -17,7 +17,10 @@
 
 	onMount(() => {
 		if (!messages.length)
-			fetch(`/api/message/${data.guild.id}/${data.channel.id}`)
+			fetch(`/api/message/${data.guild.id}/${data.channel.id}`, {
+				method: 'GET',
+				cache: 'no-store',
+			})
 				.then(async (res) => {
 					const data = await res.json();
 					messages = data.messages;
@@ -62,12 +65,13 @@
 		};
 	});
 
-	afterNavigate(() => {
-		if (messages.length) messages = data.messages;
+	afterNavigate((nav) => {
+		// if we're just entering the page, we don't need to do anything
+		if (nav.type === 'enter') return;
+		messages = data.messages;
 		// TODO: create room joining for the new channel
 		// and leaving the old one (missing in backend)
-		// for now its not a big deal as we just join the whole guild's room
-		// may not even be a problem as we want to keep getting messages from the whole guild
+		// for now it's not a big deal as we just join the whole guild's room
 	});
 
 	onDestroy(() => {

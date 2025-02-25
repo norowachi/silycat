@@ -31,7 +31,8 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 		return error(auth?.status || 500, data.message || 'Internal Server Error');
 
 	cookies.set('token', data.token, {
-		// expires: new Date(Date.now() +  * 1000),
+		// 7 days expiry
+		expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
 		httpOnly: true,
 		sameSite: 'strict',
 		secure: true,
