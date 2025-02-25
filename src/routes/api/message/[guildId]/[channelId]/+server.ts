@@ -50,6 +50,7 @@ export const GET: RequestHandler = async ({ params, cookies }) => {
 		headers: {
 			Authorization: `Bearer ${token}`,
 		},
+		cache: 'no-store',
 	}).catch(console.error);
 
 	if (!result || !result.ok)
