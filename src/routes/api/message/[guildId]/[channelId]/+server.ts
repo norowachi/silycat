@@ -44,7 +44,6 @@ export const GET: RequestHandler = async ({ params, cookies }) => {
 
 	if (!guildId || !channelId) return error(400, 'Invalid guild or channel ID');
 
-	console.log(guildId, channelId);
 	const result = await fetch(`https://api.noro.cc/v1/channels/${guildId}/${channelId}/messages`, {
 		method: 'GET',
 		headers: {

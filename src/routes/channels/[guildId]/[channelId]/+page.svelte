@@ -37,12 +37,16 @@
 
 		$socket.on('connect', () => {
 			console.log('[WS] Connected to the server');
-			$socket.emit('join', [data.guild.id]);
+			$socket.emit(
+				'join',
+				data.channels.map((c) => c.id),
+			);
 		});
 
 		$socket.on('ping', (callback) => {
 			// ack ping
-			callback($socket.id);
+			if ($socket.disconnected) callback(null);
+			else callback($socket.id);
 		});
 
 		$socket.on('message', (message) => {
@@ -57,12 +61,12 @@
 		});
 
 		const chat = document.getElementById('chat')!;
-		new ResizeObserver(ChatLength).observe(chat);
-		document.onkeydown = (e) => {
-			const target = e.target as HTMLElement;
-			if ('value' in target) return;
-			chat.focus();
-		};
+		// new ResizeObserver(ChatLength).observe(chat);
+		// document.onkeydown = (e) => {
+		// 	const target = e.target as HTMLElement;
+		// 	if ('value' in target) return;
+		// 	chat.focus();
+		// };
 	});
 
 	afterNavigate((nav) => {
@@ -76,19 +80,19 @@
 
 	onDestroy(() => {
 		console.log('[WS] Disconnecting from the server');
-		$socket.disconnect();
+		$socket?.disconnect();
 	});
 
 	// Auto-scroll
-	$effect(() => {
-		messages;
-		if (messageContainer) {
-			messageContainer.scrollTo({
-				top: messageContainer.scrollHeight,
-				behavior: 'instant',
-			});
-		}
-	});
+	// $effect(() => {
+	// 	messages;
+	// 	if (messageContainer) {
+	// 		messageContainer.scrollTo({
+	// 			top: messageContainer.scrollHeight,
+	// 			behavior: 'instant',
+	// 		});
+	// 	}
+	// });
 
 	function ChatLength(entries: ResizeObserverEntry[]) {
 		const target = entries[0].target as HTMLTextAreaElement;
@@ -106,21 +110,14 @@
 	}
 </script>
 
-<main
-	bind:this={app}
-	class="flex flex-col-reverse w-full overflow-hidden"
-	style="height: calc(100vh - 100px)"
->
+<main bind:this={app} class="flex flex-col-reverse w-full" style="height: calc(100vh - 100px)">
 	<section bind:this={messageContainer} class="w-full overflow-y-auto snap-y snap-mandatory">
 		<ul class="snap-end">
 			{#each messages as { id, content, embeds, author, createdAt }, i (id)}
-				<li>
+				<li class="mb-1px {i === messages.length - 1 ? 'pb-5' : ''}">
 					<Message {id} {content} {embeds} {author} {createdAt} lastMessage={messages[i - 1]} />
 				</li>
 			{/each}
-			<li>
-				<br />
-			</li>
 		</ul>
 	</section>
 </main>

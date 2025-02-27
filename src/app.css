@@ -1,20 +1,31 @@
 @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:ital,wght@0,700;1,700&display=swap');
 
+:root {
+	--background-color: #f472b6;
+	--other-background: #840a4a;
+	--background-hover: #f472b6;
+	--text-color: white;
+	--link-color: rgb(47, 47, 255);
+	--link-hover: rgb(25, 25, 225);
+}
+
+:root .dark {
+	--background-color: #840a4a;
+	--other-background: #f472b6;
+}
+
 body {
 	font-family: 'Comic Neue', 'Comic Sans MS', 'Comic Sans', sans-serif;
-	background: #f472b6;
-	color: white;
-	&.dark {
-		background: #840a4a;
-	}
+	background: var(--background-color);
+	color: var(--text-color);
 }
 
 a {
 	text-decoration: underline;
-	color: rgb(47, 47, 255);
+	color: var(--link-color);
 	transition: color 0.3s ease;
 	&:hover {
-		color: rgb(25, 25, 225);
+		color: var(--link-hover);
 	}
 }
 
@@ -22,7 +33,7 @@ a {
 	position: fixed;
 	bottom: 8px;
 	right: 8px;
-	background-image: linear-gradient(to bottom right, transparent 30%, purple, transparent 70%);
+	background-image: linear-gradient(to bottom right, transparent 30%, #800080, transparent 70%);
 	padding: 8px;
 	border-radius: 50%;
 	z-index: 9999999;

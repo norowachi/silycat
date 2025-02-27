@@ -1,0 +1,14 @@
+{
+	"short_name": "silycat",
+	"name": "silycat",
+	"description": "A simple Chat App Frontend using the Delta Chat API",
+	"start_url": "/",
+	"icons": [
+		{
+			"src": "favicon.png",
+			"type": "image/png",
+			"sizes": "512x512"
+		}
+	],
+	"display": "standalone"
+}

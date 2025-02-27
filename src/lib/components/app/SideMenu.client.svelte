@@ -21,7 +21,7 @@
 	});
 </script>
 
-<section class="relative w-full bg-gray-7 max-h-40px">
+<section class="relative w-full bg-gray-7 max-h-40px m-0">
 	<div>
 		<!-- TODO: change this ugly format -->
 		<span class="text-lg float-left py-1.5 px-2">#{channel.name} @ {guild.name}</span>

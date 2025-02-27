@@ -20,11 +20,9 @@
 		date.getTime() - new Date(lastMessage.createdAt).getTime() < 600000;
 	if (!content && (embeds?.length || 0) === 0)
 		error(400, 'Message must have either content or embeds');
+	const shortTime = date.toLocaleTimeString(undefined, { timeStyle: 'short' });
 </script>
 
-{#if !GroupUp}
-	<div class="pt-3"></div>
-{/if}
 <div
 	class="w-full px-2 rounded-md transition-colors duration-100 ease-in-out hover:bg-pink-300 dark:hover:bg-#640739"
 >
@@ -35,18 +33,25 @@
 				alt={author.username}
 				height="40"
 				width="40"
-				class="rounded-full"
+				class="rounded-full select-none max-w-40px max-h-40px"
 				loading="lazy"
 			/>
-			<h3 class="ml-2">
-				<span class="text-lg cursor-pointer hover:underline">{author.username}</span>
-				<span class="text-gray-600 dark:text-gray-400 text-xs pointer-events-none">
+			<h3 class="ml-10px">
+				<span class="text-gray-200 text-lg cursor-pointer hover:underline">{author.username}</span>
+				<time class="text-gray-600 dark:text-gray-400 text-xs pointer-events-none">
 					{date.toDateString()}
-					{date.toLocaleTimeString(undefined, { timeStyle: 'short' })}
-				</span>
+					{shortTime}
+				</time>
 			</h3>
 		</div>
 	{/if}
+
+	<!-- til i figure a way to format it -->
+	<!-- {#if GroupUp}
+		<time class="ml-0 text-[var(--other-background)] text-xs">
+			{shortTime}
+		</time>
+	{/if} -->
 
 	{#if content}
 		<div class="text-wrap break-words px-2 whitespace-pre-line">
@@ -55,7 +60,7 @@
 	{/if}
 
 	{#if embeds && embeds.length > 0}
-		<div class="pb-2" style={GroupUp ? 'padding-top: 8px;' : ''}>
+		<div class="px-2 pb-2 {GroupUp ? 'pt-1' : ''}">
 			{#each embeds as embed}
 				{#if embed.type === 'image'}
 					<img
@@ -71,3 +76,14 @@
 		</div>
 	{/if}
 </div>
+
+<!-- <style lang="postcss">
+	div > time {
+		visibility: hidden;
+		font-size: 0.75rem;
+	}
+
+	div:hover > time {
+		visibility: visible;
+	}
+</style> -->
