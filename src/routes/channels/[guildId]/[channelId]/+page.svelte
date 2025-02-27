@@ -80,7 +80,7 @@
 	});
 
 	// Auto-scroll
-	$effect.pre(() => {
+	$effect(() => {
 		messages;
 		if (messageContainer) {
 			messageContainer.scrollTo({
@@ -112,15 +112,15 @@
 	style="height: calc(100vh - 100px)"
 >
 	<section bind:this={messageContainer} class="w-full overflow-y-auto snap-y snap-mandatory">
-		<ul class="snap-end self-end">
+		<ul class="snap-end">
 			{#each messages as { id, content, embeds, author, createdAt }, i (id)}
-				<il>
+				<li>
 					<Message {id} {content} {embeds} {author} {createdAt} lastMessage={messages[i - 1]} />
-				</il>
+				</li>
 			{/each}
-			<il>
+			<li>
 				<br />
-			</il>
+			</li>
 		</ul>
 	</section>
 </main>
