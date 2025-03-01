@@ -28,7 +28,7 @@
 		const regex = /<@\w+>/g;
 		const array: (string | undefined)[] = [];
 
-		const match = content.match(regex) || [content];
+		const match = [...(content.match(regex) || [content]), undefined];
 		match.reduce((prev, curr) => {
 			// love it when you gotta fuck around with ts like this
 			const res = prev?.split(curr!) || [];
