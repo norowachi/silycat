@@ -20,7 +20,6 @@ sw.addEventListener('activate', (event) => {
 
 sw.addEventListener('push', async (event) => {
 	const EventData = event.data?.json();
-	console.log(EventData);
 	if (!EventData) return;
 
 	switch (EventData.tag) {
