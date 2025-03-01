@@ -26,17 +26,17 @@
 		if (!content) return [];
 
 		const regex = /<@\w+>/g;
-		const array: string[] = [];
+		const array: (string | undefined)[] = [];
 
-		const match = [...(content.match(regex) || [content]), undefined];
+		const match = content.match(regex) || [content];
 		match.reduce((prev, curr) => {
 			// love it when you gotta fuck around with ts like this
 			const res = prev?.split(curr!) || [];
-			if (res[0]) array.push(res[0]);
-			return curr + res[1];
+			array.push(res[0], curr);
+			return res[1];
 		}, content);
 
-		return array;
+		return array.map((s) => (!!s ? s : ' '));
 	}
 </script>
 
