@@ -21,6 +21,23 @@
 		date.getTime() - new Date(lastMessage.createdAt).getTime() < 600000;
 	if (!content && (embeds?.length || 0) === 0) error(400, 'Message missing content and embeds');
 	const shortTime = date.toLocaleTimeString(undefined, { timeStyle: 'short' });
+
+	function formatContent() {
+		if (!content) return [];
+
+		const regex = /<@\w+>/g;
+		const array: string[] = [];
+
+		const match = [...(content.match(regex) || [content]), undefined];
+		match.reduce((prev, curr) => {
+			// love it when you gotta fuck around with ts like this
+			const res = prev?.split(curr!) || [];
+			if (res[0]) array.push(res[0]);
+			return curr + res[1];
+		}, content);
+
+		return array;
+	}
 </script>
 
 <div
@@ -55,12 +72,12 @@
 
 	{#if content}
 		<div class="text-wrap break-words px-2 whitespace-pre-line">
-			{#each content.trim().split(/<|>/) as chunk, i (i)}
-				{#if mentions && Object.values(mentions).includes(chunk.slice(1))}
+			{#each formatContent() as chunk, i (i)}
+				{#if mentions && Object.values(mentions).includes(chunk.slice(2, -1))}
 					<span
 						class="bg-purple-500 hover:bg-purple-700 text-dark rounded-md cursor-pointer transition-colors duration-300 px-4px py-2px"
 					>
-						{chunk}
+						{chunk.replace(/<|>/g, '')}
 					</span>
 				{:else}
 					{chunk}

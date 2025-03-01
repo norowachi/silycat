@@ -60,13 +60,18 @@
 			}
 		});
 
-		$socket.on('mention', ({ content, author }: IMessage) => {
-			if (Notification.permission === 'granted') {
-				new Notification(author.username, {
-					body: content.replace(/<|>/g, '').trim(),
+		$socket.on('mention', async ({ author, content, guildId, channelId }: IMessage) => {
+			const sw = await navigator.serviceWorker.getRegistration();
+			if (sw)
+				sw.showNotification(author.username, {
+					body: content.replace(/<@\w+>/g, (match) => match.slice(1, -1)).trim(),
 					icon: author.avatar || undefined,
+					data: {
+						guildId,
+						channelId,
+					},
+					tag: 'mention',
 				});
-			}
 		});
 
 		const chat = document.getElementById('chat')!;
