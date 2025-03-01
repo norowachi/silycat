@@ -113,7 +113,7 @@
 		const target = entries[0].target as HTMLTextAreaElement;
 		if (!app) return;
 
-		app.style.height = 'calc(100vh - 56px - ' + target.clientHeight + 'px)';
+		app.style.height = 'calc(100dvh - 56px - ' + target.clientHeight + 'px)';
 
 		if (messageContainer) {
 			messageContainer.scrollTo({
@@ -125,7 +125,7 @@
 	}
 </script>
 
-<main bind:this={app} class="flex flex-col-reverse w-full" style="height: calc(100vh - 100px)">
+<main bind:this={app} class="flex flex-col-reverse w-full" style="height: calc(100dvh - 100px)">
 	<section bind:this={messageContainer} class="w-full overflow-y-auto snap-y snap-mandatory">
 		<ul class="snap-end">
 			{#each messages as { id, content, embeds, author, createdAt, mentions }, i (id)}

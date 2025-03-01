@@ -156,7 +156,7 @@
 		maxlength="50"
 		bind:value={$query}
 	/>
-	<div class="bg-gray-7 overflow-y-scroll rounded-lg rounded-t-0 rounded-b-0 h-100vh">
+	<div class="bg-gray-7 overflow-y-scroll rounded-lg rounded-t-0 rounded-b-0 h-100dvh">
 		<div class="w-xs md:w-md lg:w-lg grid grid-auto-rows-auto cols-2 p-1 gap-1 lg:p-2 lg:gap-2">
 			{#if $query && !$gifs?.length}
 				{#each Array.from({ length: 10 }), i (i)}
