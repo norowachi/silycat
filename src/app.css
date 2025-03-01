@@ -3,7 +3,7 @@
 :root {
 	--background-color: #f472b6;
 	--other-background: #840a4a;
-	--background-hover: #f472b6;
+	--background-hover: #f9a8d4;
 	--text-color: white;
 	--link-color: rgb(47, 47, 255);
 	--link-hover: rgb(25, 25, 225);
@@ -12,6 +12,7 @@
 :root .dark {
 	--background-color: #840a4a;
 	--other-background: #f472b6;
+	--background-hover: #640739;
 }
 
 body {

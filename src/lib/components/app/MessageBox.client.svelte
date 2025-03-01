@@ -6,7 +6,7 @@
 	async function OnClickSend() {
 		const chat = document.getElementById('chat') as HTMLTextAreaElement;
 		if (!chat) return;
-		const message = chat.value.replace(/^(\n|\s)+/, '');
+		const message = chat.value.trim();
 		if (!message) return;
 		chat.value = '';
 		chat.style.height = 'auto';

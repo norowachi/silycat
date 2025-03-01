@@ -1,4 +1,24 @@
+export enum WebSocketOP {
+	HELLO = 0,
+	MESSAGE_CREATE = 1,
+	MESSAGE_UPDATE = 2,
+	MESSAGE_DELETE = 3,
+}
+
 // User & Member Interfaces
+
+export interface PrivateUser {
+	id: string;
+	username: string;
+	handle: string;
+	avatar: string | null;
+	roles: number;
+	disabled: boolean;
+	deleted: boolean;
+	bot: boolean;
+	system: boolean;
+}
+
 export interface IUser {
 	id: string;
 	username: string;
@@ -11,12 +31,12 @@ export interface IUser {
 	bot: boolean;
 	system: boolean;
 	token: string;
-	guilds: string[];
+	guilds: IGuild[];
 }
 
 export interface IMember {
 	id: string;
-	user: Omit<IUser, 'password' | 'token'>;
+	user: PrivateUser;
 	guildId: string;
 	nickname: string;
 	owner: boolean;
@@ -28,12 +48,15 @@ export interface IMessage {
 	content: string;
 	embeds: IEmbed[];
 	system: boolean;
-	author: Omit<IUser, 'password' | 'token' | 'guilds'>;
+	author: PrivateUser;
 	channelId: string;
 	guildId?: string | null;
 	ephemeral: boolean;
 	readBy: string[];
 	createdAt: Date;
+	mentions: {
+		[id: string]: string;
+	};
 }
 
 export interface IEmbed {
@@ -42,8 +65,8 @@ export interface IEmbed {
 	url: string;
 	image: {
 		url: string;
-		width?: number;
-		height?: number;
+		width: number;
+		height: number;
 	};
 	description: string;
 	thumbnail: string;
@@ -78,9 +101,10 @@ export interface IChannel {
 	type: ChannelTypes;
 }
 
-export enum WebSocketOP {
-	HELLO = 0,
-	MESSAGE_CREATE = 1,
-	MESSAGE_UPDATE = 2,
-	MESSAGE_DELETE = 3,
+// Define the TokenPayload interface
+export interface TokenPayload {
+	userId: string;
+	handle: string;
+	password: string;
+	exp: number;
 }

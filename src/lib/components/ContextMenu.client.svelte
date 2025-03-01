@@ -107,7 +107,7 @@
 		<!-- svelte-ignore a11y_click_events_have_key_events -->
 		<li
 			onclick={() => HandleTheme(true)}
-			class="context-menu-item hover:bg-#640739 dark:hover:bg-pink-300"
+			class="context-menu-item hover:bg-[var(--other-background)]"
 		>
 			<img src="/images/sun.svg" alt="sun" class="hidden dark:flex context-menu-icon mr-2" />
 			<span class="hidden dark:flex text-nowrap">Light Mode</span>

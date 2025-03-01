@@ -60,13 +60,23 @@
 			}
 		});
 
+		$socket.on('mention', ({ content, author }: IMessage) => {
+			if (Notification.permission === 'granted') {
+				new Notification(author.username, {
+					body: content.replace(/<|>/g, '').trim(),
+					icon: author.avatar || undefined,
+				});
+			}
+		});
+
 		const chat = document.getElementById('chat')!;
-		// new ResizeObserver(ChatLength).observe(chat);
-		// document.onkeydown = (e) => {
-		// 	const target = e.target as HTMLElement;
-		// 	if ('value' in target) return;
-		// 	chat.focus();
-		// };
+		new ResizeObserver(ChatLength).observe(chat);
+		document.onkeydown = (e) => {
+			if ((e.ctrlKey && e.key !== 'v') || e.altKey) return;
+			const target = e.target as HTMLElement;
+			if ('value' in target) return;
+			chat.focus();
+		};
 	});
 
 	afterNavigate((nav) => {
@@ -84,15 +94,15 @@
 	});
 
 	// Auto-scroll
-	// $effect(() => {
-	// 	messages;
-	// 	if (messageContainer) {
-	// 		messageContainer.scrollTo({
-	// 			top: messageContainer.scrollHeight,
-	// 			behavior: 'instant',
-	// 		});
-	// 	}
-	// });
+	$effect(() => {
+		messages;
+		if (messageContainer) {
+			messageContainer.scrollTo({
+				top: messageContainer.scrollHeight,
+				behavior: 'instant',
+			});
+		}
+	});
 
 	function ChatLength(entries: ResizeObserverEntry[]) {
 		const target = entries[0].target as HTMLTextAreaElement;
@@ -113,9 +123,17 @@
 <main bind:this={app} class="flex flex-col-reverse w-full" style="height: calc(100vh - 100px)">
 	<section bind:this={messageContainer} class="w-full overflow-y-auto snap-y snap-mandatory">
 		<ul class="snap-end">
-			{#each messages as { id, content, embeds, author, createdAt }, i (id)}
+			{#each messages as { id, content, embeds, author, createdAt, mentions }, i (id)}
 				<li class="mb-1px {i === messages.length - 1 ? 'pb-5' : ''}">
-					<Message {id} {content} {embeds} {author} {createdAt} lastMessage={messages[i - 1]} />
+					<Message
+						{id}
+						{content}
+						{embeds}
+						{author}
+						{createdAt}
+						{mentions}
+						lastMessage={messages[i - 1]}
+					/>
 				</li>
 			{/each}
 		</ul>

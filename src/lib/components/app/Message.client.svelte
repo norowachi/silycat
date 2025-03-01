@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { IMessage } from '$lib/interfaces/delta';
+	import type { IChannel, IMessage } from '$lib/interfaces/delta';
 	import { error } from '@sveltejs/kit';
 
 	let {
@@ -8,9 +8,10 @@
 		embeds,
 		author,
 		createdAt,
+		mentions,
 		lastMessage,
 	}: Pick<IMessage, 'id' | 'author' | 'createdAt'> &
-		Partial<Pick<IMessage, 'content' | 'embeds'>> & {
+		Partial<Pick<IMessage, 'content' | 'embeds' | 'mentions'>> & {
 			lastMessage?: IMessage;
 		} = $props();
 	const date = new Date(createdAt);
@@ -18,13 +19,12 @@
 	const GroupUp =
 		lastMessage?.author.id === author.id &&
 		date.getTime() - new Date(lastMessage.createdAt).getTime() < 600000;
-	if (!content && (embeds?.length || 0) === 0)
-		error(400, 'Message must have either content or embeds');
+	if (!content && (embeds?.length || 0) === 0) error(400, 'Message missing content and embeds');
 	const shortTime = date.toLocaleTimeString(undefined, { timeStyle: 'short' });
 </script>
 
 <div
-	class="w-full px-2 rounded-md transition-colors duration-100 ease-in-out hover:bg-pink-300 dark:hover:bg-#640739"
+	class="w-full px-2 rounded-md transition-colors duration-100 ease-in-out hover:bg-[var(--background-hover)]"
 >
 	{#if !GroupUp}
 		<div class="w-full inline-flex items-center mx-auto pt-1">
@@ -55,7 +55,17 @@
 
 	{#if content}
 		<div class="text-wrap break-words px-2 whitespace-pre-line">
-			{content.replace(/^(\n|\s)+/, '')}
+			{#each content.trim().split(/<|>/) as chunk, i (i)}
+				{#if mentions && Object.values(mentions).includes(chunk.slice(1))}
+					<span
+						class="bg-purple-500 hover:bg-purple-700 text-dark rounded-md cursor-pointer transition-colors duration-300 px-4px py-2px"
+					>
+						{chunk}
+					</span>
+				{:else}
+					{chunk}
+				{/if}
+			{/each}
 		</div>
 	{/if}
 
