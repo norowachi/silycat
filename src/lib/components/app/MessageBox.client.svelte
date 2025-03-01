@@ -18,7 +18,7 @@
 		await fetch(`/api/message/${guildId}/${channelId}`, {
 			method: 'POST',
 			body: JSON.stringify({
-				content: message.replace(/@\w+(\s+?|$)/g, (match) => `<${match.trim()}>`),
+				content: message.replace(/@\w+(\s+?|$)/g, (match) => `<${match.trim()}> `),
 			}),
 		});
 
