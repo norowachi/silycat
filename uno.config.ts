@@ -1,10 +1,6 @@
 import {
 	defineConfig,
-	presetIcons,
 	presetUno,
-	presetWind,
-	PresetUnoTheme,
-	presetWebFonts,
 } from 'unocss';
 import PresetRemToPX from '@unocss/preset-rem-to-px';
 
