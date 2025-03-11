@@ -42,7 +42,7 @@
 
 <div
 	{id}
-	class="w-full px-2 rounded-md transition-colors duration-100 ease-in-out hover:bg-[var(--background-hover)] focus:text-black"
+	class="w-full px-2 rounded-md transition-colors duration-100 ease-in-out hover:bg-[var(--background-hover)]"
 >
 	{#if !GroupUp}
 		<div class="w-full inline-flex items-center mx-auto pt-1">
