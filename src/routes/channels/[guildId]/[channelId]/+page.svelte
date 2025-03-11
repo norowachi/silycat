@@ -6,7 +6,8 @@
 	import { writable } from 'svelte/store';
 	import { WebSocketOP, type IMessage } from '$lib/interfaces/delta';
 	import MessageBox from '$lib/components/app/MessageBox.client.svelte';
-	import { afterNavigate } from '$app/navigation';
+	import { afterNavigate, replaceState } from '$app/navigation';
+	import { page } from '$app/state';
 
 	let { data }: PageProps = $props();
 
@@ -15,67 +16,84 @@
 	let messages = $state<IMessage[]>([]);
 	const socket = writable<Socket>();
 
-	onMount(() => {
+	let itemId: string | null = null;
+
+	onMount(async () => {
+		// load messages
 		if (!messages.length)
-			fetch(`/api/message/${data.guild.id}/${data.channel.id}`, {
-				method: 'GET',
-				cache: 'no-store',
-			})
-				.then(async (res) => {
-					const data = await res.json();
-					messages = data.messages;
-				})
-				.catch(console.error);
+			messages = (
+				await (
+					await fetch(`/api/message/${data.guild.id}/${data.channel.id}`, {
+						method: 'GET',
+						cache: 'no-store',
+					}).catch(console.error)
+				)
+					?.json()
+					.catch(console.error)
+			).messages;
 
-		socket.set(
-			io('https://api.noro.cc', {
-				auth: {
-					token: data.token,
-				},
-			}),
-		);
-
-		$socket.on('connect', () => {
-			console.log('[WS] Connected to the server');
-			$socket.emit(
-				'join',
-				data.channels.map((c) => c.id),
-			);
-		});
-
-		$socket.on('ping', (callback) => {
-			// ack ping
-			if ($socket.disconnected) callback(null);
-			else callback($socket.id);
-		});
-
-		$socket.on('message', (message) => {
-			if (message.op === WebSocketOP.MESSAGE_CREATE) {
-				const md: IMessage = message.d;
-				if (md.channelId !== data.channel.id) return;
-				// TODO: add a way to make messages show with gray text or so if they're still not sent
-				messages = (
-					messages?.find((msg) => msg.id === md.id) ? messages : [...(messages || []), md]
-				)?.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
-			}
-		});
-
-		$socket.on('mention', async ({ author, content, guildId, channelId }: IMessage) => {
-			const sw = await navigator.serviceWorker.getRegistration();
-			if (sw)
-				sw.showNotification(author.username, {
-					body: content.replace(/<@\w+>/g, (match) => match.slice(1, -1)).trim(),
-					icon: author.avatar || undefined,
-					data: {
-						guildId,
-						channelId,
+		// connect to the websocket if not connected
+		if (!$socket)
+			socket.set(
+				io('https://api.noro.cc', {
+					auth: {
+						token: data.token,
 					},
-					tag: 'mention',
-				});
-		});
+				}),
+			);
 
+		// register events if not registered
+		if ($socket && !$socket.hasListeners('message')) {
+			// on connection
+			$socket.on('connect', () => {
+				console.log('[WS] Connected to the server');
+				$socket.emit(
+					'join',
+					data.channels.map((c) => c.id),
+				);
+			});
+
+			// heartbeat/ping
+			$socket.on('ping', (callback) => {
+				// ack ping
+				if ($socket.disconnected) callback(null);
+				else callback($socket.id);
+			});
+
+			// on new messages add to the $messages store
+			$socket.on('message', (message) => {
+				if (message.op === WebSocketOP.MESSAGE_CREATE) {
+					const md: IMessage = message.d;
+					if (md.channelId !== data.channel.id) return;
+					// TODO: add a way to make messages show with gray text or so if they're still not sent
+					messages = (
+						messages?.find((msg) => msg.id === md.id) ? messages : [...(messages || []), md]
+					)?.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+				}
+			});
+
+			// on mention send a notification
+			$socket.on('mention', async ({ author, content, guildId, channelId }: IMessage) => {
+				// get service worker
+				const sw = await navigator.serviceWorker.getRegistration();
+				// show notification if service worker is available
+				if (sw)
+					sw.showNotification(author.username, {
+						body: content.replace(/<@\w+>/g, (match) => match.slice(1, -1)).trim(),
+						icon: author.avatar || undefined,
+						data: {
+							guildId,
+							channelId,
+						},
+						tag: 'mention',
+					});
+			});
+		}
+
+		// observe chatbox for resizing
 		const chat = document.getElementById('chat')!;
 		new ResizeObserver(ChatLength).observe(chat);
+		// on keydown focus chatbox
 		document.onkeydown = (e) => {
 			if ((e.ctrlKey && e.key !== 'v') || e.altKey) return;
 			const target = e.target as HTMLElement;
@@ -84,6 +102,7 @@
 		};
 	});
 
+	// on page url change or so
 	afterNavigate((nav) => {
 		// if we're just entering the page, we don't need to do anything
 		if (nav.type === 'enter') return;
@@ -93,22 +112,41 @@
 		// for now it's not a big deal as we just join the whole guild's room
 	});
 
+	// on disconnect, i think
 	onDestroy(() => {
 		console.log('[WS] Disconnecting from the server');
 		$socket?.disconnect();
 	});
 
-	// Auto-scroll
+	// Auto-scroll on new messages
 	$effect(() => {
+		// TODO: add check if the user is scrolled up
+		// and if so, don't scroll down
 		messages;
 		if (messageContainer) {
-			messageContainer.scrollTo({
-				top: messageContainer.scrollHeight,
-				behavior: 'instant',
-			});
+			// get message id from url fragment
+			itemId = page.url.hash?.replace('#', '');
+			// TODO: add a way to load around a message not from the recents
+			if (itemId) {
+				// if item exists scroll to it
+				const element = document.getElementById(itemId!);
+				if (!element) return;
+				setTimeout(() => {
+					element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+					element.style.animation = 'color-pulse 2s linear';
+				}, 100);
+				// remove fragment after scrolling
+				replaceState(window.location.pathname, page.state);
+			} else {
+				messageContainer.scrollTo({
+					top: messageContainer.scrollHeight,
+					behavior: 'instant',
+				});
+			}
 		}
 	});
 
+	// resizing function
 	function ChatLength(entries: ResizeObserverEntry[]) {
 		const target = entries[0].target as HTMLTextAreaElement;
 		if (!app) return;
