@@ -12,6 +12,7 @@
 	let { data }: PageProps = $props();
 
 	let app: HTMLElement;
+	let loader: HTMLSpanElement;
 	let messageContainer: HTMLElement;
 	let messages = $state<IMessage[]>([]);
 	const socket = writable<Socket>();
@@ -165,6 +166,7 @@
 <main bind:this={app} class="flex flex-col-reverse w-full" style="height: calc(100dvh - 100px)">
 	<section bind:this={messageContainer} class="w-full overflow-y-auto snap-y snap-mandatory">
 		<ul class="snap-normal">
+			<span bind:this={loader} ></span>
 			{#each messages as { id, content, embeds, author, createdAt, mentions }, i (id)}
 				<li class="mb-1px {i === messages.length - 1 ? 'pb-5' : ''}">
 					<Message

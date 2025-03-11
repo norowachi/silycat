@@ -191,7 +191,7 @@
 						loading="lazy"
 					/>
 				{/each}
-				<span bind:this={loader} id="gifs-end"></span>
+				<span bind:this={loader}></span>
 			{/if}
 		</div>
 	</div>
