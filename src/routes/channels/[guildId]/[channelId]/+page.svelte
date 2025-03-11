@@ -120,8 +120,6 @@
 
 	// Auto-scroll on new messages
 	$effect(() => {
-		// TODO: add check if the user is scrolled up
-		// and if so, don't scroll down
 		messages;
 		if (messageContainer) {
 			// get message id from url fragment
@@ -137,7 +135,8 @@
 				}, 100);
 				// remove fragment after scrolling
 				replaceState(window.location.pathname, page.state);
-			} else {
+				// if user scrolled up 2x their viewport or more, don't scroll down
+			} else if (messageContainer.scrollHeight - messageContainer.scrollTop < 3 * window.innerHeight) {
 				messageContainer.scrollTo({
 					top: messageContainer.scrollHeight,
 					behavior: 'instant',
@@ -165,7 +164,7 @@
 
 <main bind:this={app} class="flex flex-col-reverse w-full" style="height: calc(100dvh - 100px)">
 	<section bind:this={messageContainer} class="w-full overflow-y-auto snap-y snap-mandatory">
-		<ul class="snap-end">
+		<ul class="snap-normal">
 			{#each messages as { id, content, embeds, author, createdAt, mentions }, i (id)}
 				<li class="mb-1px {i === messages.length - 1 ? 'pb-5' : ''}">
 					<Message

@@ -27,6 +27,9 @@
 
 		const res = await fetch('https://api.noro.cc/tenor', {
 			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
 			body: JSON.stringify(body),
 		});
 		const data: SearchResponse = await res.json();
