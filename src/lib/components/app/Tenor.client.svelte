@@ -131,9 +131,7 @@
 			},
 			{ signal: NewController.signal },
 		);
-	});
 
-	$effect(() => {
 		if (loader)
 			new IntersectionObserver(
 				async (entries) => {

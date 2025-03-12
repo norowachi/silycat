@@ -1,6 +1,6 @@
 import { type RequestHandler, error, json } from '@sveltejs/kit';
 
-export const POST: RequestHandler = async ({ request, cookies }) => {
+export const POST: RequestHandler = async ({ request, cookies, fetch }) => {
 	const FormData = await request.formData().catch(() => {});
 	if (!FormData) return error(400, 'No body provided');
 	const login = FormData.get('login')?.toString();

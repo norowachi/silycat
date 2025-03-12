@@ -8,6 +8,8 @@
 	import MessageBox from '$lib/components/app/MessageBox.client.svelte';
 	import { afterNavigate, replaceState } from '$app/navigation';
 	import { page } from '$app/state';
+	import { getMessages } from '$lib/api/message';
+	import { GuildDefaultMessageNotifications } from 'discord-api-types/v9';
 
 	let { data }: PageProps = $props();
 
@@ -15,24 +17,27 @@
 	let loader: HTMLSpanElement;
 	let messageContainer: HTMLElement;
 	let messages = $state<IMessage[]>([]);
+	/**
+	 * messages page
+	 */
+	let MessagePages = $state<number>(1);
 	const socket = writable<Socket>();
 
 	let itemId: string | null = null;
 
 	onMount(async () => {
 		// load messages
-		if (!messages.length)
-			messages = (
-				await (
-					await fetch(`/api/message/${data.guild.id}/${data.channel.id}`, {
-						method: 'GET',
-						cache: 'no-store',
-					}).catch(console.error)
-				)
-					?.json()
-					.catch(console.error)
-			).messages;
-
+		if (!messages.length) {
+			const result = await getMessages({
+				guildId: data.guild.id,
+				channelId: data.channel.id,
+				page: MessagePages,
+			});
+			if (result) {
+				messages = result.messages;
+				MessagePages = result.currentPage;
+			}
+		}
 		// connect to the websocket if not connected
 		if (!$socket)
 			socket.set(
@@ -94,6 +99,32 @@
 		// observe chatbox for resizing
 		const chat = document.getElementById('chat')!;
 		new ResizeObserver(ChatLength).observe(chat);
+
+		// load older messages
+		if (loader)
+			new IntersectionObserver(
+				async (entries) => {
+					if (entries[0].isIntersecting && entries[0].time > 1000) {
+						if (messages.length) {
+							const result = await getMessages({
+								guildId: data.guild.id,
+								channelId: data.channel.id,
+								page: MessagePages + 1,
+							});
+							if (result?.messages?.length) {
+								messages = [...result.messages, ...messages];
+								MessagePages = result.currentPage;
+								if (result.pages === result.currentPage) loader.remove();
+							} else loader.remove();
+						}
+					}
+				},
+				{
+					rootMargin: 2 * window.innerHeight + 'px',
+					root: messageContainer,
+				},
+			).observe(loader);
+
 		// on keydown focus chatbox
 		document.onkeydown = (e) => {
 			if ((e.ctrlKey && e.key !== 'v') || e.altKey) return;
@@ -166,7 +197,7 @@
 <main bind:this={app} class="flex flex-col-reverse w-full" style="height: calc(100dvh - 100px)">
 	<section bind:this={messageContainer} class="w-full overflow-y-auto snap-y snap-mandatory">
 		<ul class="snap-normal">
-			<span bind:this={loader} ></span>
+			<span bind:this={loader}></span>
 			{#each messages as { id, content, embeds, author, createdAt, mentions }, i (id)}
 				<li class="mb-1px {i === messages.length - 1 ? 'pb-5' : ''}">
 					<Message

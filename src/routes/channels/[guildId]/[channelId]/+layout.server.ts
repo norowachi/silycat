@@ -2,7 +2,7 @@ import { error, redirect } from '@sveltejs/kit';
 import type { LayoutServerLoad } from './$types';
 import type { IGuild, IMessage, IUser } from '$lib/interfaces/delta';
 
-export const load: LayoutServerLoad = async ({ params, cookies }) => {
+export const load: LayoutServerLoad = async ({ params, cookies, fetch }) => {
 	const token = cookies.get('token');
 
 	if (!token) return redirect(303, '/');
