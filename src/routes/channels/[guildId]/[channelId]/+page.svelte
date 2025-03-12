@@ -38,10 +38,11 @@
 				MessagePages = result.currentPage;
 			}
 		}
+
 		// connect to the websocket if not connected
 		if (!$socket)
 			socket.set(
-				io('https://api.noro.cc', {
+				io('wss://api.noro.cc', {
 					auth: {
 						token: data.token,
 					},
@@ -99,6 +100,17 @@
 		// observe chatbox for resizing
 		const chat = document.getElementById('chat')!;
 		new ResizeObserver(ChatLength).observe(chat);
+		// body resize observer
+		new ResizeObserver(() => {
+			if (
+				messageContainer && // if user scrolled up 2x their viewport or more, don't scroll down
+				messageContainer.scrollHeight - messageContainer.scrollTop < 3 * window.innerHeight
+			)
+				messageContainer.scrollTo({
+					top: messageContainer.scrollHeight,
+					behavior: 'instant',
+				});
+		}).observe(document.body);
 
 		// load older messages
 		if (loader)

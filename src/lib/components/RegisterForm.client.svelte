@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { redirect } from '@sveltejs/kit';
-
 	function confirmPassword() {
 		const passwordInput = document.getElementById('password') as HTMLInputElement;
 		const confirmPasswordInput = document.getElementById('confirm-password') as HTMLInputElement;
