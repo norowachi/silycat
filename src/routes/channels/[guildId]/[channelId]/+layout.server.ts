@@ -1,6 +1,7 @@
 import { error, redirect } from '@sveltejs/kit';
 import type { LayoutServerLoad } from './$types';
-import type { IGuild, IMessage, IUser } from '$lib/interfaces/delta';
+import type { IGuild, IUser } from '$lib/interfaces/delta';
+import { getMessages } from '$lib/api/message';
 
 export const load: LayoutServerLoad = async ({ params, cookies, fetch }) => {
 	const token = cookies.get('token');
@@ -43,17 +44,7 @@ export const load: LayoutServerLoad = async ({ params, cookies, fetch }) => {
 	if (!TargetChannel) return error(404, 'Channel not found');
 
 	// Fetch messages
-	let messages: IMessage[] = (
-		await (
-			await fetch(`https://api.noro.cc/v1/channels/${guildId}/${channelId}/messages`, {
-				headers: {
-					Authorization: `Bearer ${token}`,
-				},
-			}).catch(console.error)
-		)
-			?.json()
-			.catch(console.error)
-	)?.messages;
+	let messages = (await getMessages({ guildId, channelId, fetch }))?.messages;
 
 	messages ||= [];
 
