@@ -81,7 +81,7 @@
 						{chunk.replace(/<|>/g, '')}
 					</span>
 				{:else}
-					{chunk.trim()}
+					{chunk}
 				{/if}
 			{/each}
 		</div>

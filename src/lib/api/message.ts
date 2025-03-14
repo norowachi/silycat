@@ -13,8 +13,8 @@ export async function getMessages({
 		await fetch(`/api/message/${guildId || '@me'}/${channelId}?page=${page || 1}`, {
 			method: 'GET',
 			cache: 'no-store',
-		}).catch(console.error)
+		}).catch(() => {})
 	)
 		?.json()
-		.catch(console.error);
+		.catch(() => {});
 }

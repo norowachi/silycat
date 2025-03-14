@@ -1,6 +1,7 @@
 <script lang="ts">
 	import LoginForm from '$lib/components/LoginForm.client.svelte';
 	import RegisterForm from '$lib/components/RegisterForm.client.svelte';
+	import Cookie from '$lib/svg/cookie.svelte';
 
 	let ShowRegister = $state(false);
 </script>
@@ -29,6 +30,12 @@
 		</button>
 	</LoginForm>
 {/if}
+<a
+	id="open_preferences_center"
+	class="fixed bottom-3 right-3 cursor-pointer rounded-full z-999999 transition-all duration-500 ease hover:transform-rotate-360"
+>
+	<Cookie />
+</a>
 
 <style>
 	@keyframes animate-gradient {

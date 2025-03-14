@@ -27,10 +27,10 @@ export const load: LayoutServerLoad = async ({ params, cookies, fetch }) => {
 			headers: {
 				Authorization: `Bearer ${token}`,
 			},
-		}).catch(console.error)
+		}).catch(() => {})
 	)
 		?.json()
-		.catch(console.error)) as IGuild;
+		.catch(() => {})) as IGuild;
 
 	// send 404 if the guild is not found
 	if (!guild) return error(404, 'Guild not found');
@@ -44,9 +44,7 @@ export const load: LayoutServerLoad = async ({ params, cookies, fetch }) => {
 	if (!TargetChannel) return error(404, 'Channel not found');
 
 	// Fetch messages
-	let messages = (await getMessages({ guildId, channelId, fetch }))?.messages;
-
-	messages ||= [];
+	let messages = await getMessages({ guildId, channelId, fetch });
 
 	// if (!messages?.length) return error(404, "Cloudn't fetch messages");
 

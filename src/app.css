@@ -5,6 +5,7 @@
 	--other-background: #840a4a;
 	--background-hover: #f9a8d4;
 	--text-color: white;
+	--svg-color: white;
 	--link-color: rgb(47, 47, 255);
 	--link-hover: rgb(25, 25, 225);
 }
@@ -30,18 +31,8 @@ a {
 	}
 }
 
-#cookie-svg {
-	position: fixed;
-	bottom: 8px;
-	right: 8px;
-	background-image: linear-gradient(to bottom right, transparent 30%, #800080, transparent 70%);
-	padding: 8px;
-	border-radius: 50%;
-	z-index: 9999999;
-	transition: all 500ms ease;
-	&:hover {
-		transform: rotate(360deg);
-	}
+.custom svg {
+	stroke: var(--svg-color);
 }
 
 @keyframes enter {
