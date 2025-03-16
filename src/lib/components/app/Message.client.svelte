@@ -28,13 +28,13 @@
 		const regex = /<@\w+>/g;
 		const array: (string | undefined)[] = [];
 
-		const match = [...(content.match(regex) || [content]), undefined];
+		const match = [...(content.match(regex) || [content.trim()]), undefined];
 		match.reduce((prev, curr) => {
 			// love it when you gotta fuck around with ts like this
 			const res = prev?.split(curr!) || [];
 			array.push(res[0], curr);
 			return res[1];
-		}, content);
+		}, content.trim());
 
 		return array.map((s) => (!!s ? s : ' '));
 	}
@@ -81,7 +81,7 @@
 						{chunk.replace(/<|>/g, '')}
 					</span>
 				{:else}
-					{chunk.trimEnd()}
+					{chunk}
 				{/if}
 			{/each}
 		</div>
