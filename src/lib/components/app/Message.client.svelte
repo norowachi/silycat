@@ -92,10 +92,10 @@
 			{#each embeds as embed}
 				{#if embed.type === 'image'}
 					<img
-						src={embed.image.url}
-						alt={embed.image.url}
-						width={embed.image.width}
-						height={embed.image.height}
+						src={embed.image!.url}
+						alt={embed.image!.url}
+						width={embed.image!.width}
+						height={embed.image!.height}
 						class="rounded-md max-w-90%"
 						loading="lazy"
 					/>

@@ -16,7 +16,7 @@
 	const next = writable<string | undefined>();
 	const gifs = writable<GIF_OBJECT[]>([]);
 	const categories = writable<CATEGORY_OBJECT[]>([]);
-	let controller = writable<AbortController>();
+	const controller = writable<AbortController>();
 
 	async function getTenorGifs(input_next?: string) {
 		if ($gifs.length >= 100) return;
@@ -53,7 +53,7 @@
 		width: number;
 		height: number;
 	}) {
-		const embed: Partial<IEmbed> = {
+		const embed: IEmbed = {
 			type: 'image',
 			image: {
 				url,
@@ -74,6 +74,20 @@
 
 	onMount(() => {
 		query.subscribe(async (value) => {
+			const category = $categories.find(({ name }) => name.replace('#', '') === value);
+			if (category) {
+				fetch('https://api.noro.cc/tenor', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({ path: category.path }),
+				})
+					.then((res) => res.json().then((data: SearchResponse) => gifs.set(data.results)))
+					.catch(() => {});
+				return;
+			}
+
 			if (!value || value.length < 3) return gifs.set([]);
 			// timeout for the user to finish typing
 			await new Promise((r) => setTimeout(r, 1200));
@@ -115,6 +129,11 @@
 					next.set(undefined);
 					tab.style.display = 'none';
 					return;
+				} else if (target.id === 'category') {
+					const category = $categories.find(({ name }) => target.textContent === name);
+					if (!category) return;
+					query.set(category.name.replace('#', ''));
+					return;
 				}
 				// ignore the attach button, which is the caller
 				if ([target.ariaLabel, document.activeElement?.ariaLabel].includes('Attach')) return;
@@ -131,7 +150,9 @@
 			},
 			{ signal: NewController.signal },
 		);
+	});
 
+	$effect(() => {
 		if (loader)
 			new IntersectionObserver(
 				async (entries) => {
@@ -159,7 +180,9 @@
 		bind:value={$query}
 	/>
 	<div class="bg-gray-7 overflow-y-scroll rounded-lg rounded-t-0 rounded-b-0 h-100dvh">
-		<div class="w-xs md:w-md lg:w-lg grid grid-auto-rows-auto cols-2 p-1 gap-1 lg:p-2 lg:gap-2">
+		<div
+			class="w-xs md:w-md lg:w-lg grid grid-auto-rows-auto cols-2 p-1 gap-1 lg:p-2 lg:gap-2 select-none"
+		>
 			{#if $query && !$gifs?.length}
 				{#each Array.from({ length: 10 }), i (i)}
 					<div class="h-128px lg:h-167px bg-gray-8 rounded-md animate-pulse"></div>
@@ -174,6 +197,7 @@
 							loading="lazy"
 						/>
 						<div
+							id="category"
 							class="w-full absolute inset-0 flex items-center justify-center bg-black/50 text-white text-xl rounded-md"
 						>
 							{category.name}

@@ -3,11 +3,11 @@ export enum WebSocketOP {
 	MESSAGE_CREATE = 1,
 	MESSAGE_UPDATE = 2,
 	MESSAGE_DELETE = 3,
-}
-
-// User & Member Interfaces
-
-export interface PrivateUser {
+  }
+  
+  // User & Member Interfaces
+  
+  export interface PrivateUser {
 	id: string;
 	username: string;
 	handle: string;
@@ -17,9 +17,9 @@ export interface PrivateUser {
 	deleted: boolean;
 	bot: boolean;
 	system: boolean;
-}
-
-export interface IUser {
+  }
+  
+  export interface IUser {
 	id: string;
 	username: string;
 	handle: string;
@@ -32,48 +32,48 @@ export interface IUser {
 	system: boolean;
 	token: string;
 	guilds: IGuild[];
-}
-
-export interface IMember {
+  }
+  
+  export interface IMember {
 	id: string;
 	user: PrivateUser;
 	guildId: string;
 	nickname: string;
 	owner: boolean;
-}
-
-// Message Interface
-export interface IMessage {
+  }
+  
+  // Message Interface
+  export interface IMessage {
 	id: string;
 	content: string;
 	embeds: IEmbed[];
 	system: boolean;
 	author: PrivateUser;
 	channelId: string;
-	guildId?: string | null;
+	guildId: string | null;
 	ephemeral: boolean;
 	readBy: string[];
 	createdAt: Date;
 	mentions: {
-		[id: string]: string;
+	  [id: string]: string;
 	};
-}
-
-export interface IEmbed {
+  }
+  
+  export interface IEmbed {
 	type: 'image' | 'video' | 'link';
-	title: string;
-	url: string;
-	image: {
-		url: string;
-		width: number;
-		height: number;
+	title?: string;
+	url?: string;
+	image?: {
+	  url: string;
+	  width?: number;
+	  height?: number;
 	};
-	description: string;
-	thumbnail: string;
-}
-
-// Guild & Channel Interface
-export interface IGuild {
+	description?: string;
+	thumbnail?: string;
+  }
+  
+  // Guild & Channel Interface
+  export interface IGuild {
 	id: string;
 	name: string;
 	icon: string | null;
@@ -82,16 +82,16 @@ export interface IGuild {
 	ownerId: string;
 	channels: IChannel[];
 	deleted: boolean;
-}
-
-//! Important
-export enum ChannelTypes {
+  }
+  
+  //! Important
+  export enum ChannelTypes {
 	DM = 0,
 	TEXT = 1,
 	VOICE = 2,
-}
-
-export interface IChannel {
+  }
+  
+  export interface IChannel {
 	id: string;
 	name: string;
 	stickyMessage?: IMessage;
@@ -99,12 +99,5 @@ export interface IChannel {
 	guildId: string;
 	members: string[];
 	type: ChannelTypes;
-}
-
-// Define the TokenPayload interface
-export interface TokenPayload {
-	userId: string;
-	handle: string;
-	password: string;
-	exp: number;
-}
+  }
+  
