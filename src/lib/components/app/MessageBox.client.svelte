@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { draft } from '$lib/store';
 	import Tenor from './Tenor.client.svelte';
 
 	let { guildId, channelId } = $props();
@@ -38,7 +39,7 @@
 </script>
 
 <div
-	class="overflow-hidden w-full inline-flex items-center py-2 px-3 bg-gray-50 dark:bg-#131313 rounded-lg rounded-b-0 bottom-0"
+	class="overflow-hidden w-full inline-flex items-center py-2 px-3 bg-gray-50 dark:bg-#131313 rounded-0 bottom-0"
 >
 	<button
 		type="button"
@@ -86,6 +87,7 @@
 		style="height: auto;"
 		minlength="1"
 		maxlength="2000"
+		value={$draft}
 		oninput={(e) => {
 			e.currentTarget.style.height = 'auto';
 			e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px';

@@ -6,16 +6,15 @@
 	import { writable } from 'svelte/store';
 	import { WebSocketOP, type IMessage } from '$lib/interfaces/delta';
 	import MessageBox from '$lib/components/app/MessageBox.client.svelte';
-	import { afterNavigate, replaceState } from '$app/navigation';
+	import { afterNavigate, invalidateAll, replaceState } from '$app/navigation';
 	import { page } from '$app/state';
 	import { getMessages } from '$lib/api/message';
+	import { appContainer, messages } from '$lib/store';
 
 	let { data }: PageProps = $props();
 
-	let app: HTMLElement;
 	let messageContainer: HTMLElement;
 	let loading = $state<boolean>(false);
-	let messages = $state<IMessage[]>([]);
 	/**
 	 * messages current page
 	 */
@@ -23,21 +22,17 @@
 	let MessageMaxPages = $state<boolean>(false);
 	const socket = writable<Socket>();
 
-	let itemId: string | null = null;
+	let itemId: string | null = page.url.hash?.replace('#', '');
+
+	let showScrollButton = $state<boolean>(false);
+	let tempAround = $state<boolean>(false);
 
 	onMount(async () => {
 		// load messages
-		if (!messages.length) {
-			const result = await getMessages({
-				guildId: data.guild.id,
-				channelId: data.channel.id,
-				page: MessagePages,
-			});
-			if (result) {
-				messages = result.messages;
-				MessagePages = result.currentPage;
-				MessageMaxPages = result.pages === result.currentPage;
-			}
+		if (!$messages.length && !itemId && data.messages) {
+			messages.set(data.messages.messages);
+			MessagePages = data.messages.currentPage;
+			MessageMaxPages = data.messages.pages === data.messages.currentPage;
 		}
 
 		// connect to the websocket if not connected
@@ -74,9 +69,14 @@
 					const md: IMessage = message.d;
 					if (md.channelId !== data.channel.id) return;
 					// TODO: add a way to make messages show with gray text or so if they're still not sent
-					messages = (
-						messages?.find((msg) => msg.id === md.id) ? messages : [...(messages || []), md]
-					)?.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+					messages.update((oldmsgs) => {
+						const dupMsg = oldmsgs?.find((msg) => msg.id === md.id);
+						return dupMsg
+							? $messages
+							: [...($messages || []), md]?.sort(
+									(a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+								);
+					});
 				}
 			});
 
@@ -133,7 +133,7 @@
 		}, 0);
 		// if we're just entering the page, we don't need to do anything
 		if (nav.type === 'enter') return;
-		messages = data.messages?.messages || [];
+		messages.set(data.messages?.messages || []);
 		MessagePages = data.messages?.currentPage || 1;
 		MessageMaxPages = data.messages?.pages === data.messages?.currentPage || false;
 		// TODO: create room joining for the new channel
@@ -149,30 +149,53 @@
 
 	// Auto-scroll on new messages
 	$effect(() => {
-		messages;
+		$messages;
 		if (messageContainer) {
-			// get message id from url fragment
-			itemId = page.url.hash?.replace('#', '');
-			// TODO: add a way to load around a message not from the recents
 			if (itemId) {
+				// get around a message if its not in the store
+				const msg = $messages.find(({ id }) => itemId === id);
+				if (!msg) {
+					MessageMaxPages = true;
+					tempAround = true;
+					showScrollButton = true;
+					// load around a message
+					getMessages({
+						guildId: data.guild.id,
+						channelId: data.channel.id,
+						around: itemId,
+					}).then((res) => (res ? messages.set([...res.messages]) : void 0));
+				}
+
 				// if item exists scroll to it
 				const element = document.getElementById(itemId!);
-				if (!element) return;
-				setTimeout(() => {
-					element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-					element.style.animation = 'color-pulse 2s linear';
-				}, 100);
-				// remove fragment after scrolling
-				replaceState(window.location.pathname, page.state);
-				// if user scrolled up 2x their viewport or more, don't scroll down
+				if (element)
+					setTimeout(() => {
+						element.scrollIntoView({ behavior: msg ? 'instant' : 'smooth', block: 'center' });
+						element.style.animation = 'color-pulse 2s linear';
+						// remove fragments
+						replaceState(window.location.pathname, page.state);
+						itemId = null;
+					}, 100);
 			} else if (
 				messageContainer.scrollHeight - 3 * window.innerHeight <=
 				messageContainer.scrollTop
 			) {
+				// if user scrolled up 2x their viewport or more, don't scroll down
 				messageContainer.scrollTo({
 					top: messageContainer.scrollHeight,
 					behavior: 'instant',
 				});
+			} else if (tempAround) {
+				// container > ul > last element, scroll to it
+				console.log(messageContainer.firstElementChild?.lastElementChild);
+				messageContainer.firstElementChild?.lastElementChild?.scrollIntoView({
+					inline: 'end',
+					block: 'end',
+					behavior: 'instant',
+				});
+				MessageMaxPages = false;
+				tempAround = false;
+				showScrollButton = false;
 			}
 		}
 	});
@@ -180,9 +203,9 @@
 	// resizing function
 	function ChatLength(entries: ResizeObserverEntry[]) {
 		const target = entries[0].target as HTMLTextAreaElement;
-		if (!app) return;
+		if (!$appContainer) return;
 
-		app.style.height = 'calc(100dvh - 56px - ' + target.clientHeight + 'px)';
+		$appContainer.style.height = 'calc(100dvh - 56px - ' + target.clientHeight + 'px)';
 
 		if (messageContainer) {
 			messageContainer.scrollTo({
@@ -194,10 +217,17 @@
 	}
 
 	async function onContainerScroll() {
+		// if user scrolled up 2x their viewport or more
+		if (messageContainer.scrollHeight - 3 * window.innerHeight > messageContainer.scrollTop) {
+			showScrollButton = true;
+		} else if (!tempAround) {
+			showScrollButton = false;
+		}
+
 		if (
 			messageContainer.scrollTop <= messageContainer.clientHeight &&
-			messages.length >= 100 &&
 			!loading &&
+			$messages.length < data.channel.messages &&
 			!MessageMaxPages
 		) {
 			loading = true;
@@ -208,26 +238,28 @@
 				page: MessagePages + 1,
 			});
 			if (result?.messages?.length) {
-				messages = [...result.messages, ...messages];
+				messages.update((old) => [...result.messages, ...old]);
 				MessagePages = result.currentPage;
 				MessageMaxPages = result.pages === result.currentPage;
 				// remove loader if no more pages
 				if (MessageMaxPages) {
 					messageContainer.onscroll = null;
-					loading = false;
-					return;
+				} else {
+					messageContainer.scrollBy({
+						top: 75,
+					});
 				}
-
-				setTimeout(() => {
-					loading = false;
-					onContainerScroll();
-				}, 1000);
-			} else loading = false;
+			}
+			loading = false;
 		}
 	}
 </script>
 
-<main bind:this={app} class="flex flex-col-reverse w-full" style="height: calc(100dvh - 100px)">
+<main
+	bind:this={$appContainer}
+	class="flex flex-col-reverse w-full"
+	style="height: calc(100dvh - 100px)"
+>
 	<section
 		bind:this={messageContainer}
 		onscroll={onContainerScroll}
@@ -254,20 +286,63 @@
 					</svg>
 				</li>
 			{/if}
-			{#each messages as { id, content, embeds, author, createdAt, mentions }, i (id)}
-				<li class="mb-1px {i === messages.length - 1 ? 'pb-5' : ''}">
+			{#each $messages as { id, content, embeds, author, createdAt, ephemeral, mentions }, i (id)}
+				<li class="mb-1px {i === $messages.length - 1 ? 'pb-5' : ''}">
 					<Message
 						{id}
 						{content}
 						{embeds}
 						{author}
 						{createdAt}
+						{ephemeral}
 						{mentions}
-						lastMessage={messages[i - 1]}
+						lastMessage={$messages[i - 1]}
 					/>
 				</li>
 			{/each}
 		</ul>
 	</section>
+
+	<!-- button to scroll to bottom -->
+	{#if showScrollButton}
+		<button
+			class="fixed inline-flex justify-end bottom-60px w-full bg-gray-9 hover:bg-gray-8 text-white transition-all duration-300 ease-in px-5"
+			onclick={async () => {
+				if (!tempAround) {
+					messageContainer.scrollTo({
+						top: messageContainer.scrollHeight,
+						behavior: 'smooth',
+					});
+				} else {
+					showScrollButton = false;
+					const result = await getMessages({ guildId: data.guild.id, channelId: data.channel.id });
+					if (!result) return location.reload();
+					messages.set(result.messages);
+					MessagePages = result.currentPage;
+					MessageMaxPages = result.pages === result.currentPage;
+				}
+			}}
+		>
+			{#if tempAround}
+				<span class="float-left mr-auto">You are viewing an old conversation</span>
+				<span class="mr-24px">Jump to present</span>
+			{:else}
+				<span class="mr-24px">Jump to bottom</span>
+			{/if}
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				width="24"
+				height="24"
+				viewBox="0 0 24 24"
+				fill="none"
+				stroke="currentColor"
+				stroke-width="2"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			>
+				<path d="m6 9 6 6 6-6" />
+			</svg>
+		</button>
+	{/if}
 </main>
 <MessageBox guildId={data.guild.id} channelId={data.channel.id} />

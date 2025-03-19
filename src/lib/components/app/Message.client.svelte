@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { IChannel, IMessage } from '$lib/interfaces/delta';
+	import type { IMessage } from '$lib/interfaces/delta';
 	import { error } from '@sveltejs/kit';
 
 	let {
@@ -8,10 +8,11 @@
 		embeds,
 		author,
 		createdAt,
+		ephemeral,
 		mentions,
 		lastMessage,
 	}: Pick<IMessage, 'id' | 'author' | 'createdAt'> &
-		Partial<Pick<IMessage, 'content' | 'embeds' | 'mentions'>> & {
+		Partial<Pick<IMessage, 'content' | 'embeds' | 'mentions' | 'ephemeral'>> & {
 			lastMessage?: IMessage;
 		} = $props();
 	const date = new Date(createdAt);
@@ -40,9 +41,11 @@
 	}
 </script>
 
+<!-- TODO: finish ephemeral shiz -->
 <div
 	{id}
 	class="w-full px-2 rounded-md transition-colors duration-100 ease-in-out hover:bg-[var(--background-hover)]"
+	style={ephemeral ? 'display: none;' : ''}
 >
 	{#if !GroupUp}
 		<div class="w-full inline-flex items-center mx-auto pt-1">
@@ -53,6 +56,8 @@
 				width="40"
 				class="rounded-full select-none max-w-40px max-h-40px"
 				loading="lazy"
+				onerror={(e) =>
+					((e.currentTarget as HTMLImageElement).src = 'https://api.noro.cc/images/delta-0.png')}
 			/>
 			<h3 class="ml-10px">
 				<span class="text-gray-200 text-lg cursor-pointer hover:underline">{author.username}</span>
@@ -96,7 +101,7 @@
 						alt={embed.image!.url}
 						width={embed.image!.width}
 						height={embed.image!.height}
-						class="rounded-md max-w-90%"
+						class="rounded-md max-w-90% pointer-events-none"
 						loading="lazy"
 					/>
 				{/if}

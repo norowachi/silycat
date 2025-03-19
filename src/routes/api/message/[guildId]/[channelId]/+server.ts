@@ -44,10 +44,13 @@ export const GET: RequestHandler = async ({ params, cookies, url }) => {
 
 	if (!guildId || !channelId) return error(400, 'Invalid guild or channel ID');
 
-	const page = url.searchParams.get('page') || 1;
+	const page = url.searchParams.get('page');
+	const around = url.searchParams.get('around');
+	const before = url.searchParams.get('before');
+	const after = url.searchParams.get('after');
 
 	const result = await fetch(
-		`https://api.noro.cc/v1/channels/${guildId}/${channelId}/messages?page=${page}`,
+		`https://api.noro.cc/v1/channels/${guildId}/${channelId}/messages?${page ? `page=${page}&` : ''}${around ? `around=${around}&` : ''}${before ? `before=${before}&` : ''}${after ? `after=${after}&` : ''}`,
 		{
 			method: 'GET',
 			headers: {
