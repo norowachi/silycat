@@ -13,7 +13,7 @@
 		if (!chat) return;
 		const message = chat.value.trim();
 		if (!message) return;
-		chat.value = '';
+		draft.set('');
 		chat.style.height = 'auto';
 
 		await fetch(`/api/message/${guildId}/${channelId}`, {

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { IMessage } from '$lib/interfaces/delta';
+	import { draft } from '$lib/store';
 	import { error } from '@sveltejs/kit';
 
 	let {
@@ -60,7 +61,10 @@
 					((e.currentTarget as HTMLImageElement).src = 'https://api.noro.cc/images/delta-0.png')}
 			/>
 			<h3 class="ml-10px">
-				<span class="text-gray-200 text-lg cursor-pointer hover:underline">{author.username}</span>
+				<button
+					onclick={() => draft.update((d) => `${d} <@${author.id}>`)}
+					class="text-gray-200 text-lg cursor-pointer hover:underline">{author.username}</button
+				>
 				<time class="text-gray-600 dark:text-gray-400 text-xs pointer-events-none">
 					{date.toDateString()}
 					{shortTime}

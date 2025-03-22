@@ -10,7 +10,4 @@ export default defineConfig({
 		}),
 		sveltekit(),
 	],
-	optimizeDeps: {
-		exclude: ['showdown'],
-	},
 });

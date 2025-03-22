@@ -6,7 +6,7 @@
 	import { writable } from 'svelte/store';
 	import { WebSocketOP, type IMessage } from '$lib/interfaces/delta';
 	import MessageBox from '$lib/components/app/MessageBox.client.svelte';
-	import { afterNavigate, invalidateAll, replaceState } from '$app/navigation';
+	import { afterNavigate, replaceState } from '$app/navigation';
 	import { page } from '$app/state';
 	import { getMessages } from '$lib/api/message';
 	import { appContainer, messages } from '$lib/store';
