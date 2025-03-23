@@ -87,7 +87,7 @@
 		style="height: auto;"
 		minlength="1"
 		maxlength="2000"
-		value={$draft}
+		bind:value={$draft}
 		oninput={(e) => {
 			e.currentTarget.style.height = 'auto';
 			e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px';
