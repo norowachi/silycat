@@ -9,11 +9,13 @@
 	import { afterNavigate, replaceState } from '$app/navigation';
 	import { page } from '$app/state';
 	import { getMessages } from '$lib/api/message';
-	import { appContainer, messages } from '$lib/store';
+	import { appContainer, chatBox, messageContainer, messages } from '$lib/store';
+	import { sendTauriNotification, showMessageOverlay } from '$lib/api/notification';
+	import { listen } from '@tauri-apps/api/event';
+	import { getCurrentWindow } from '@tauri-apps/api/window';
 
 	let { data }: PageProps = $props();
 
-	let messageContainer: HTMLElement;
 	let loading = $state<boolean>(false);
 	/**
 	 * messages current page
@@ -80,35 +82,55 @@
 				}
 			});
 
-			// on mention send a notification
-			$socket.on('mention', async ({ author, content, guildId, channelId }: IMessage) => {
-				// get service worker
-				const sw = await navigator.serviceWorker.getRegistration();
-				// show notification if service worker is available
-				if (sw)
-					sw.showNotification(author.username, {
-						body: content.replace(/<@\w+>/g, (match) => match.slice(1, -1)).trim(),
-						icon: author.avatar || undefined,
-						data: {
+			$socket.on('mention', async (message: IMessage) => {
+				const { author, content, guildId, channelId } = message;
+				// send a notification if the overlay errored out
+				const result = await showMessageOverlay(message);
+				if (!result) {
+					const largeContent = content.replace(/<@\w+>/g, (match) => match.slice(1, -1)).trim();
+					const guild = data.user.guilds.find((g) => g.id === guildId);
+					await sendTauriNotification({
+						title: author.username,
+						body: largeContent.substring(0, 40),
+						largeBody: largeContent,
+						summary: guild
+							? `${guild.name} (#${guild.channels.find((c) => c.id === channelId)?.name})`
+							: author.username,
+						extra: {
 							guildId,
 							channelId,
+							type: 'mention',
 						},
-						tag: 'mention',
 					});
+				}
+			});
+		}
+
+		// TODO: check if this works/doesnt error on normal browsers
+		if ('__TAURI__' in window) {
+			// tauri notification click handling
+			// #desktop
+			listen('open', async (event) => {
+				// TODO: do message shiz
+				const { messageId, channelId, guildId } = event.payload as any;
+				// if we're already in the channel, we don't need to do anything
+				if (location.pathname !== `/channels/${guildId}/${channelId}`)
+					location.assign(`/channels/${guildId}/${channelId}`);
+				const window = getCurrentWindow();
+				await window.setFocus();
 			});
 		}
 
 		// observe chatbox for resizing
-		const chat = document.getElementById('chat')!;
-		new ResizeObserver(ChatLength).observe(chat);
+		new ResizeObserver(ChatLength).observe($chatBox!);
 		// body resize observer
 		new ResizeObserver(() => {
 			if (
-				messageContainer && // if user scrolled up 2x their viewport or more, don't scroll down
-				messageContainer.scrollHeight - messageContainer.scrollTop < 3 * window.innerHeight
+				$messageContainer && // if user scrolled up 2x their viewport or more, don't scroll down
+				$messageContainer.scrollHeight - 3 * window.innerHeight <= $messageContainer.scrollTop
 			)
-				messageContainer.scrollTo({
-					top: messageContainer.scrollHeight,
+				$messageContainer.scrollTo({
+					top: $messageContainer.scrollHeight,
 					behavior: 'instant',
 				});
 		}).observe(document.body);
@@ -118,16 +140,17 @@
 			if ((e.ctrlKey && e.key !== 'v') || e.altKey) return;
 			const target = e.target as HTMLElement;
 			if ('value' in target) return;
-			chat.focus();
+			$chatBox?.focus();
 		};
 	});
 
 	// on page url change or so
 	afterNavigate((nav) => {
+		if (nav.to?.url?.pathname === nav.from?.url?.pathname) return;
 		loading = false;
 		setTimeout(() => {
-			messageContainer.scrollTo({
-				top: messageContainer.scrollHeight,
+			$messageContainer.scrollTo({
+				top: $messageContainer.scrollHeight,
 				behavior: 'instant',
 			});
 		}, 0);
@@ -143,14 +166,14 @@
 
 	// on disconnect, i think
 	onDestroy(() => {
-		console.log('[WS] Disconnecting from the server');
-		$socket?.disconnect();
+		console.log('[WS] Disconnecting from the server - or at least should');
+		// $socket?.disconnect();
 	});
 
 	// Auto-scroll on new messages
 	$effect(() => {
-		$messages;
-		if (messageContainer) {
+		$messages && $messageContainer;
+		if ($messages && $messageContainer) {
 			if (itemId) {
 				// get around a message if its not in the store
 				const msg = $messages.find(({ id }) => itemId === id);
@@ -170,25 +193,20 @@
 				const element = document.getElementById(itemId!);
 				if (element)
 					setTimeout(() => {
-						element.scrollIntoView({ behavior: msg ? 'instant' : 'smooth', block: 'center' });
+						element.scrollIntoView({
+							behavior: msg ? 'smooth' : 'instant',
+							block: 'center',
+							inline: 'center',
+						});
 						element.style.animation = 'color-pulse 2s linear';
 						// remove fragments
 						replaceState(window.location.pathname, page.state);
 						itemId = null;
 					}, 100);
-			} else if (
-				messageContainer.scrollHeight - 3 * window.innerHeight <=
-				messageContainer.scrollTop
-			) {
-				// if user scrolled up 2x their viewport or more, don't scroll down
-				messageContainer.scrollTo({
-					top: messageContainer.scrollHeight,
-					behavior: 'instant',
-				});
+				return;
 			} else if (tempAround) {
 				// container > ul > last element, scroll to it
-				console.log(messageContainer.firstElementChild?.lastElementChild);
-				messageContainer.firstElementChild?.lastElementChild?.scrollIntoView({
+				$messageContainer.firstElementChild?.lastElementChild?.scrollIntoView({
 					inline: 'end',
 					block: 'end',
 					behavior: 'instant',
@@ -196,20 +214,28 @@
 				MessageMaxPages = false;
 				tempAround = false;
 				showScrollButton = false;
-			}
+				return;
+			} else if (
+				$messageContainer.scrollHeight - 3 * window.innerHeight <=
+				$messageContainer.scrollTop
+			)
+				// if user scrolled up 2x their viewport or more, don't scroll down
+				$messageContainer.scrollTo({
+					top: $messageContainer.scrollHeight,
+					behavior: 'instant',
+				});
 		}
 	});
 
-	// resizing function
 	function ChatLength(entries: ResizeObserverEntry[]) {
 		const target = entries[0].target as HTMLTextAreaElement;
 		if (!$appContainer) return;
 
 		$appContainer.style.height = 'calc(100dvh - 56px - ' + target.clientHeight + 'px)';
 
-		if (messageContainer) {
-			messageContainer.scrollTo({
-				top: messageContainer.scrollHeight,
+		if ($messageContainer) {
+			$messageContainer.scrollTo({
+				top: $messageContainer.scrollHeight,
 				behavior: 'instant',
 			});
 		}
@@ -218,24 +244,25 @@
 
 	async function onContainerScroll() {
 		// if user scrolled up 2x their viewport or more
-		if (messageContainer.scrollHeight - 3 * window.innerHeight > messageContainer.scrollTop) {
+		if ($messageContainer.scrollHeight - 3 * window.innerHeight > $messageContainer.scrollTop) {
 			showScrollButton = true;
 		} else if (!tempAround) {
 			showScrollButton = false;
 		}
 
 		if (
-			messageContainer.scrollTop <= messageContainer.clientHeight &&
+			$messageContainer.scrollTop <= $messageContainer.clientHeight &&
 			!loading &&
 			$messages.length < data.channel.messages &&
 			!MessageMaxPages
 		) {
 			loading = true;
+			const before = $messages[0].id;
 			// get next page
 			const result = await getMessages({
 				guildId: data.guild.id,
 				channelId: data.channel.id,
-				page: MessagePages + 1,
+				before,
 			});
 			if (result?.messages?.length) {
 				messages.update((old) => [...result.messages, ...old]);
@@ -243,9 +270,9 @@
 				MessageMaxPages = result.pages === result.currentPage;
 				// remove loader if no more pages
 				if (MessageMaxPages) {
-					messageContainer.onscroll = null;
+					$messageContainer.onscroll = null;
 				} else {
-					messageContainer.scrollBy({
+					$messageContainer.scrollBy({
 						top: 75,
 					});
 				}
@@ -261,7 +288,7 @@
 	style="height: calc(100dvh - 100px)"
 >
 	<section
-		bind:this={messageContainer}
+		bind:this={$messageContainer}
 		onscroll={onContainerScroll}
 		class="w-full overflow-y-auto snap-y snap-mandatory"
 	>
@@ -306,11 +333,11 @@
 	<!-- button to scroll to bottom -->
 	{#if showScrollButton}
 		<button
-			class="fixed inline-flex justify-end bottom-60px w-full bg-gray-9 hover:bg-gray-8 text-white transition-all duration-300 ease-in px-5"
+			class="fixed inline-flex justify-end bottom-60px w-full bg-gray-2 dark:bg-gray-9 hover:bg-gray-3 dark:hover:bg-gray-8 text-black dark:text-white transition-all duration-300 ease-in px-5"
 			onclick={async () => {
 				if (!tempAround) {
-					messageContainer.scrollTo({
-						top: messageContainer.scrollHeight,
+					$messageContainer.scrollTo({
+						top: $messageContainer.scrollHeight,
 						behavior: 'smooth',
 					});
 				} else {

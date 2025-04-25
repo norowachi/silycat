@@ -1,14 +1,19 @@
+export const prerender = false;
+export const ssr = false;
 import { error, redirect } from '@sveltejs/kit';
-import type { LayoutServerLoad } from './$types';
 import type { IGuild, IUser } from '$lib/interfaces/delta';
-import { getMessages } from '$lib/api/message';
+import { getMessages } from '$lib/api/message.js';
+import type { LayoutLoad } from './$types';
+import { isTauri } from '@tauri-apps/api/core';
 
-export const load: LayoutServerLoad = async ({ params, cookies, fetch }) => {
-	const token = cookies.get('token');
+export const load: LayoutLoad = async ({ params, fetch }) => {
+	console.log(isTauri());
+
+	const token = localStorage.getItem('token');
 
 	if (!token) return redirect(303, '/');
 
-	const user = (await (
+	const user: IUser = await (
 		await fetch('https://api.noro.cc/v1/users/@me', {
 			headers: {
 				Authorization: `Bearer ${token}`,
@@ -16,10 +21,11 @@ export const load: LayoutServerLoad = async ({ params, cookies, fetch }) => {
 		}).catch(() => {})
 	)
 		?.json()
-		.catch(() => {})) as IUser;
+		.catch(() => {});
 	if (!user) return error(401, 'Unauthorized');
 
-	const { guildId, channelId } = params;
+	const guildId = params.guildId;
+	const channelId = params.channelId;
 
 	// Fetch guild
 	const guild = (await (

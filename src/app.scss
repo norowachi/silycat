@@ -1,0 +1,89 @@
+@import url('https://fonts.googleapis.com/css2?family=Comic+Neue:ital,wght@0,700;1,700&display=swap');
+
+:root {
+  --background-color: #111111;
+  --other-background: #eeeeee;
+  --background-hover: #808080;
+  --higher-color: #323232;
+  --text-color: white;
+  --link-color: rgb(47, 47, 255);
+  --link-hover: rgb(25, 25, 225);
+}
+
+:root .light {
+  --background-color: #eeeeee;
+  --background-hover: #cccccc;
+  --other-background: #111111;
+  --higher-color: #ffffff;
+  --text-color: #323232;
+}
+
+body {
+  font-family: 'Comic Neue', 'Comic Sans MS', 'Comic Sans', sans-serif;
+  background: var(--background-color);
+  color: var(--text-color);
+}
+
+a {
+  text-decoration: underline;
+  color: var(--link-color);
+  transition: color 0.3s ease;
+  &:hover {
+    color: var(--link-hover);
+  }
+}
+
+::-webkit-scrollbar {
+  width: 3px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+  &:hover {
+    background: color-mix(in oklab, var(--background-color) 90%, var(--other-background) 10%);
+  }
+}
+
+::-webkit-scrollbar-thumb {
+  background: color-mix(in oklab, var(--other-background) 70%, var(--higher-color) 30%);
+  border-radius: 1rem;
+}
+
+@keyframes enter {
+  0% {
+    opacity: var(--tw-enter-opacity, 1);
+    transform: translate3d(var(--tw-enter-translate-x, 0), var(--tw-enter-translate-y, 0), 0)
+      scale3d(var(--tw-enter-scale, 1), var(--tw-enter-scale, 1), var(--tw-enter-scale, 1))
+      rotate(var(--tw-enter-rotate, 0));
+  }
+}
+
+@keyframes exit {
+  to {
+    opacity: var(--tw-exit-opacity, 1);
+    transform: translate3d(var(--tw-exit-translate-x, 0), var(--tw-exit-translate-y, 0), 0)
+      scale3d(var(--tw-exit-scale, 1), var(--tw-exit-scale, 1), var(--tw-exit-scale, 1))
+      rotate(var(--tw-exit-rotate, 0));
+  }
+}
+
+@keyframes color-pulse {
+  0% {
+    background-color: var(--background-hover);
+  }
+  20% {
+    background-color: var(--background-color);
+  }
+  40% {
+    background-color: var(--background-hover);
+  }
+  60% {
+    background-color: var(--background-color);
+  }
+  80% {
+    background-color: var(--background-hover);
+  }
+  100% {
+    background-color: var(--background-color);
+  }
+}

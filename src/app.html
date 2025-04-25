@@ -1,43 +1,14 @@
 <!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" href="%sveltekit.assets%/delta.svg" />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%sveltekit.assets%/delta.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tauri + SvelteKit + UnoCSS + Typescript App</title>
+    %unocss-svelte-scoped.global% %sveltekit.head%
+  </head>
 
-		<title>silycat</title>
-		<meta name="description" content="A simple Chat App Frontend using the Delta API" />
-
-		<!-- Cookie Consent by FreePrivacyPolicy.com https://www.FreePrivacyPolicy.com -->
-		<script
-			type="text/javascript"
-			src="//www.freeprivacypolicy.com/public/cookie-consent/4.2.0/cookie-consent.js"
-			charset="UTF-8"
-		></script>
-		<script type="text/javascript" charset="UTF-8">
-			document.addEventListener('DOMContentLoaded', function () {
-				cookieconsent.run({
-					notice_banner_type: 'interstitial',
-					consent_type: 'express',
-					palette: 'dark',
-					language: 'en',
-					page_load_consent_levels: ['strictly-necessary'],
-					notice_banner_reject_button_hide: false,
-					preferences_center_close_button_hide: false,
-					page_refresh_confirmation_buttons: false,
-				});
-			});
-		</script>
-		<!-- End Cookie Consent by FreePrivacyPolicy.com https://www.FreePrivacyPolicy.com -->
-
-		%unocss-svelte-scoped.global% %sveltekit.head%
-	</head>
-
-	<body class="dark" data-sveltekit-preload-data>
-		<noscript>
-			<h1>Please enable JavaScript to view this Website</h1>
-		</noscript>
-
-		<div style="display: contents">%sveltekit.body%</div>
-	</body>
+  <body data-sveltekit-preload-data>
+    <div style="display: contents">%sveltekit.body%</div>
+  </body>
 </html>
